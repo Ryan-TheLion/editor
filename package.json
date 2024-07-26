@@ -10,10 +10,12 @@
   "devDependencies": {
     "prettier": "^3.2.5",
     "turbo": "^2.0.9",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@org/prettier-config": "workspace:*"
   },
   "packageManager": "pnpm@9.6.0",
   "engines": {
     "node": ">=18"
-  }
+  },
+  "prettier": "@org/prettier-config"
 }
