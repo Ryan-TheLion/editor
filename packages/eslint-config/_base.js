@@ -24,6 +24,9 @@ module.exports = {
   ignorePatterns: [
     // Ignore dotfiles
     '.*.js',
+    '.*.cjs',
+    '.*.mjs',
+    'tsup.config.ts',
     'node_modules/',
     'dist/',
   ],
