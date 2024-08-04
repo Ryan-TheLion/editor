@@ -1,0 +1,18 @@
+{
+  "name": "@org/tsup-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --config ./src/tsup.config.ts"
+  },
+  "devDependencies": {
+    "@org/eslint-config": "workspace:*",
+    "@org/typescript-config": "workspace:*",
+    "tsup": "^8.2.4"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
+  "ui": "stream",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -11,8 +11,15 @@
       "dependsOn": ["^lint"]
     },
     "dev": {
+      "dependsOn": ["//build-tsup-config"],
       "cache": false,
       "persistent": true
+    },
+    "//build-tsup-config": {
+      "dependsOn": ["@org/tsup-config#build"]
+    },
+    "clean": {
+      "cache": false
     }
   }
 }

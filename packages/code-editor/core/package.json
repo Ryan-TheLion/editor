@@ -1,0 +1,22 @@
+{
+  "name": "code-editor-core",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "turbo lint"
+  },
+  "devDependencies": {
+    "@org/tsup-config": "workspace:*",
+    "@types/node": "^20",
+    "tsup": "^8.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
