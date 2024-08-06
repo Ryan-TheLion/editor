@@ -2,6 +2,7 @@ import { Compartment, EditorState, Extension, StateEffect } from '@codemirror/st
 import { EditorView } from '@codemirror/view'
 import { minimalSetup } from 'codemirror'
 
+import { darkTheme, lightTheme } from '../theme'
 import { CommandManager } from './commands'
 import {
   CODE_EDITOR_DEFAULT_LANGUAGE,
@@ -10,14 +11,20 @@ import {
   type EditorLanguagePack,
 } from './languages'
 
+type CodeEditorTheme = 'light' | 'dark' | Extension
+
 export class CodeEditor {
   state: EditorState
   view: EditorView
   dom: HTMLElement
 
+  #themeCompartment: Compartment
+  theme: CodeEditorTheme
+
   #languageCompartment: Compartment
   editorLanguages: EditorLanguagePack
 
+  util: CodeEditorUtil
   commandManager: CommandManager
 
   constructor({
@@ -26,13 +33,17 @@ export class CodeEditor {
     dom,
     content,
     extraExtensions = [],
+    theme = 'light',
   }: {
     state?: EditorState
     view?: EditorView
     dom?: HTMLElement
     content?: string
+    theme?: CodeEditorTheme
     extraExtensions?: Extension[]
   } = {}) {
+    this.util = new CodeEditorUtil({ editor: this })
+
     this.editorLanguages = { ...CodeEditorLanguages }
     this.#languageCompartment = new Compartment()
 
@@ -40,11 +51,21 @@ export class CodeEditor {
       this.editorLanguages[CODE_EDITOR_DEFAULT_LANGUAGE],
     )
 
+    this.#themeCompartment = new Compartment()
+    this.theme = theme
+    const defaultTheme = this.#themeCompartment.of(this.util.getThemeExtension(this.theme))
+
     this.state =
       state ??
       EditorState.create({
         doc: content ?? '',
-        extensions: [minimalSetup, defaultLanguage, ...extraExtensions],
+        extensions: [
+          minimalSetup,
+          EditorView.lineWrapping,
+          defaultLanguage,
+          defaultTheme,
+          ...extraExtensions,
+        ],
       })
 
     this.view =
@@ -83,5 +104,32 @@ export class CodeEditor {
     this.view.dispatch({
       effects: StateEffect.reconfigure.of(extensions),
     })
+  }
+
+  changeTheme(theme: CodeEditorTheme) {
+    const targetTheme = this.util.getThemeExtension(theme)
+
+    if (this.#themeCompartment.get(this.view.state) == targetTheme) return
+
+    this.theme = theme
+
+    this.view.dispatch({
+      effects: this.#themeCompartment.reconfigure(targetTheme),
+    })
+  }
+}
+
+class CodeEditorUtil {
+  editor: CodeEditor
+
+  constructor({ editor }: { editor: CodeEditor }) {
+    this.editor = editor
+  }
+
+  getThemeExtension(theme: CodeEditorTheme) {
+    if (theme === 'light') return lightTheme
+    if (theme === 'dark') return darkTheme
+
+    return theme
   }
 }
