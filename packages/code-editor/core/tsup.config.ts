@@ -3,7 +3,7 @@ import { defineTsupConfig } from '@org/tsup-config'
 export default defineTsupConfig({
   overrideConfig() {
     return {
-      entry: ['src/index.ts'],
+      entry: ['src/index.ts', 'src/extension/index.ts'],
     }
   },
 })

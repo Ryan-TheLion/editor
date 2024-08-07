@@ -16,6 +16,7 @@
       "require": "./core/src/index.ts",
       "import": "./core/src/index.ts"
     },
+    "./extension": "./core/src/extension/index.ts",
     "./package.json": "./package.json"
   },
   "devDependencies": {
