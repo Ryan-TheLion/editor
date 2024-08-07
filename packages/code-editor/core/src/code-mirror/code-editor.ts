@@ -1,3 +1,5 @@
+import './style.css'
+
 import { Compartment, EditorState, Extension, StateEffect } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { minimalSetup } from 'codemirror'
@@ -74,8 +76,8 @@ export class CodeEditor {
         state: this.state,
         parent: dom ?? undefined,
       })
-
-    this.dom = dom ?? this.view.dom
+    this.view.contentDOM.classList.add('fira-code')
+    this.dom = this.view.dom
 
     this.commandManager = new CommandManager({ editor: this })
   }
