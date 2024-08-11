@@ -216,7 +216,6 @@ export class Scrollbar {
           const clientPageY = view.scrollDOM.scrollTop + view.scrollDOM.clientHeight
 
           const expectedOverflowX =
-            this.horizontalTrack &&
             prevLines === lines &&
             left >
               clientPageX - (view.contentDOM.offsetLeft + this.verticalTrack.element.offsetWidth)
