@@ -1,5 +1,5 @@
 import { Compartment, EditorState, Extension, StateEffect } from '@codemirror/state'
-import { EditorView } from '@codemirror/view'
+import { EditorView, highlightActiveLineGutter, lineNumbers } from '@codemirror/view'
 import { minimalSetup } from 'codemirror'
 
 import { viewActiveLine } from '../extension'
@@ -13,6 +13,12 @@ import {
 } from './languages'
 
 type CodeEditorTheme = 'light' | 'dark' | Extension
+
+interface CodeEditorConfig {
+  lineWrapping?: Extension
+  lineNumber?: Extension
+  activeLineGutter?: Extension
+}
 
 export class CodeEditor {
   state: EditorState
@@ -37,8 +43,11 @@ export class CodeEditor {
     view,
     dom,
     content,
-    theme = 'light',
+    theme = 'dark',
     editable = true,
+    lineWrapping = false,
+    lineNumber = true,
+    activeLineGutter = true,
     language = CODE_EDITOR_DEFAULT_LANGUAGE,
     autoFocus = false,
     extraExtensions = [],
@@ -49,6 +58,9 @@ export class CodeEditor {
     content?: string
     theme?: CodeEditorTheme
     editable?: boolean
+    lineWrapping?: boolean
+    lineNumber?: boolean
+    activeLineGutter?: boolean
     language?: CodeEditorSupportedLanguage
     autoFocus?: boolean
     extraExtensions?: Extension[]
@@ -77,8 +89,15 @@ export class CodeEditor {
         parent: dom ?? undefined,
       })
 
+    const config: CodeEditorConfig = {
+      ...(lineWrapping && { lineWrapping: EditorView.lineWrapping }),
+      ...(lineNumber && { lineNumber: lineNumbers() }),
+      ...(activeLineGutter && { activeLineGutter: highlightActiveLineGutter() }),
+    }
+
     this.addExtension([
       ...this.util.getBaseExtension({ editable, theme, language }),
+      ...Array.from(Object.values(config)),
       ...extraExtensions,
     ])
 

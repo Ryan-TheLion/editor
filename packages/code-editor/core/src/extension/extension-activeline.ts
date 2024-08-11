@@ -20,9 +20,12 @@ const activeLine = ({ hideInSelection, hideHasNotFocus }: ActiveLineOptions) => 
       decorations: DecorationSet
 
       constructor(view: EditorView) {
-        this.decorations = !view.hasFocus
-          ? this.removeActiveLine()
-          : this.setActiveLine({ view, hideInSelection })
+        const isEdtiable = view.state.facet(EditorView.editable.reader)
+
+        this.decorations =
+          !isEdtiable || !view.hasFocus
+            ? this.removeActiveLine()
+            : this.setActiveLine({ view, hideInSelection })
       }
 
       update(update: ViewUpdate) {

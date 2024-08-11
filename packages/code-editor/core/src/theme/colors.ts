@@ -8,6 +8,10 @@ export interface CodeEditorThemeColors {
       bg: string
       font: string
     }
+    activeGutter: {
+      bg: string
+      font: string
+    }
     cursor: string
     scrollbar: {
       vertical: {
@@ -46,7 +50,11 @@ export const codeEditorLightThemeColors: CodeEditorThemeColors = {
     selection: '#B2D9FF',
     gutter: {
       bg: '#FCFCFC',
-      font: '#333333',
+      font: '#B0B0B0',
+    },
+    activeGutter: {
+      bg: 'transparent',
+      font: '#4F4F4F',
     },
     cursor: '#000',
     scrollbar: {
@@ -86,7 +94,11 @@ export const codeEditorDarkThemeColors: CodeEditorThemeColors = {
     selection: '#004182',
     gutter: {
       bg: '#1C2333',
-      font: '#CCCCCC',
+      font: '#808080',
+    },
+    activeGutter: {
+      bg: 'transparent',
+      font: '#ffffff',
     },
     cursor: '#fff',
     scrollbar: {

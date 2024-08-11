@@ -34,6 +34,10 @@ export const editorLightTheme = EditorView.theme({
     color: codeEditorLightThemeColors.editor.gutter.font,
     border: 'none',
   },
+  '.cm-activeLineGutter': {
+    backgroundColor: codeEditorLightThemeColors.editor.activeGutter.bg,
+    color: codeEditorLightThemeColors.editor.activeGutter.font,
+  },
   // caret
   '.cm-content': {
     caretColor: codeEditorLightThemeColors.editor.cursor,
@@ -86,6 +90,10 @@ export const editorDarkTheme = EditorView.theme(
       backgroundColor: codeEditorDarkThemeColors.editor.gutter.bg,
       color: codeEditorDarkThemeColors.editor.gutter.font,
       border: 'none',
+    },
+    '.cm-activeLineGutter': {
+      backgroundColor: codeEditorDarkThemeColors.editor.activeGutter.bg,
+      color: codeEditorDarkThemeColors.editor.activeGutter.font,
     },
     // caret
     '.cm-content': {

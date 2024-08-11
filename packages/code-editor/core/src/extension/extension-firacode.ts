@@ -9,6 +9,8 @@ export const firaCodeFont = () =>
   })
 
 class FiraCodeFontPlugin {
+  static #gutters: HTMLDivElement | null
+
   static status: 'idle' | 'loding' | 'loadingDone' = 'idle'
 
   static hasFiraCodeFont = () =>
@@ -17,10 +19,21 @@ class FiraCodeFontPlugin {
   static onFontLoadingDone = () => {
     if (FiraCodeFontPlugin.hasFiraCodeFont()) {
       FiraCodeFontPlugin.status = 'loadingDone'
+
+      // apply Fira Code font to gutters
+      if (!FiraCodeFontPlugin.#gutters) return
+
+      const gutters = FiraCodeFontPlugin.#gutters
+
+      gutters.style.fontFamily = `'Fira Code', monospace`
+      gutters.style.fontOpticalSizing = 'auto'
+      gutters.style.fontWeight = '400'
     }
   }
 
   constructor() {
+    FiraCodeFontPlugin.#gutters = document.querySelector<HTMLDivElement>('.cm-gutters') ?? null
+
     const hasFiraCodeFont = FiraCodeFontPlugin.hasFiraCodeFont()
 
     if (hasFiraCodeFont) {
@@ -41,6 +54,12 @@ class FiraCodeFontPlugin {
 
   destroy() {
     document.fonts.removeEventListener('loadingdone', FiraCodeFontPlugin.onFontLoadingDone)
+
+    const gutters = FiraCodeFontPlugin.#gutters
+
+    gutters?.style.removeProperty('font-family')
+    gutters?.style.removeProperty('font-optical-sizing')
+    gutters?.style.removeProperty('font-weight')
   }
 
   fetchFiraCodeFont() {
