@@ -1,5 +1,6 @@
+import { indentLess, insertTab } from '@codemirror/commands'
 import { Compartment, EditorState, Extension, StateEffect } from '@codemirror/state'
-import { EditorView, highlightActiveLineGutter, lineNumbers } from '@codemirror/view'
+import { EditorView, highlightActiveLineGutter, keymap, lineNumbers } from '@codemirror/view'
 import { minimalSetup } from 'codemirror'
 
 import { viewActiveLine } from '../extension'
@@ -225,6 +226,19 @@ class CodeEditorUtil {
       languageCompartment.get(state) ??
       languageCompartment.of(this.editor.editorLanguages[language])
 
-    return [minimalSetup, editableExtension, themeExtension, languageExtension, viewActiveLine()]
+    return [
+      minimalSetup,
+      keymap.of([
+        {
+          key: 'Tab',
+          run: insertTab,
+          shift: indentLess,
+        },
+      ]),
+      editableExtension,
+      themeExtension,
+      languageExtension,
+      viewActiveLine(),
+    ]
   }
 }
