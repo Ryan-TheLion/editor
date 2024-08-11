@@ -120,6 +120,14 @@ export class CodeEditor {
     }
   }
 
+  toText() {
+    return this.util.toText()
+  }
+
+  toJSON() {
+    return this.util.toJSON()
+  }
+
   attachDom<DomElement extends HTMLElement>(targetDom: DomElement) {
     if (this.dom.parentElement === targetDom) return
 
@@ -173,6 +181,14 @@ class CodeEditorUtil {
 
   constructor({ editor }: { editor: CodeEditor }) {
     this.editor = editor
+  }
+
+  toText() {
+    return this.editor.view.state.doc.toString()
+  }
+
+  toJSON() {
+    return this.editor.view.state.toJSON()
   }
 
   getThemeExtension(theme: CodeEditorTheme) {
