@@ -1,5 +1,6 @@
 import { EditorView } from 'codemirror'
 
+import { createScrollbarTheme } from '../extension/extension-scrollbar'
 import { codeEditorDarkThemeColors, codeEditorLightThemeColors } from './colors'
 
 export const editorLightTheme = EditorView.theme({
@@ -16,15 +17,17 @@ export const editorLightTheme = EditorView.theme({
   '&.cm-focused': {
     outline: 'none',
   },
-  // scrollbar
+  // scrollbar & scrollDom
   '& .cm-scroller': {
     overflow: 'auto',
     scrollbarWidth: 'none',
     '-ms-overflow-style': 'none',
+    backgroundColor: codeEditorLightThemeColors.editor.bg,
   },
   '& .cm-scroller::-webkit-scrollbar': {
     display: 'none',
   },
+  ...createScrollbarTheme({ scrollbarColors: codeEditorLightThemeColors.editor.scrollbar }),
   // gutter
   '.cm-gutters': {
     backgroundColor: codeEditorLightThemeColors.editor.gutter.bg,
@@ -51,45 +54,57 @@ export const editorLightTheme = EditorView.theme({
   },
 })
 
-export const editorDarkTheme = EditorView.theme({
-  '&': {
-    backgroundColor: codeEditorDarkThemeColors.editor.bg,
-    fontWeight: 'bold',
-    height: '100%',
-    color: codeEditorDarkThemeColors.editor.font,
-    fontSize: '14px',
+export const editorDarkTheme = EditorView.theme(
+  {
+    '&': {
+      backgroundColor: codeEditorDarkThemeColors.editor.bg,
+      fontWeight: 'bold',
+      height: '100%',
+      color: codeEditorDarkThemeColors.editor.font,
+      fontSize: '14px',
+      overflow: 'hidden',
+    },
+    '&.cm-editor': {
+      height: '100%',
+    },
+    '&.cm-focused': {
+      outline: 'none',
+    },
+    // scrollbar & scrollDom
+    '& .cm-scroller': {
+      overflow: 'auto',
+      scrollbarWidth: 'none',
+      '-ms-overflow-style': 'none',
+      backgroundColor: codeEditorDarkThemeColors.editor.bg,
+    },
+    '& .cm-scroller::-webkit-scrollbar': {
+      display: 'none',
+    },
+    ...createScrollbarTheme({ scrollbarColors: codeEditorDarkThemeColors.editor.scrollbar }),
+    // gutter
+    '.cm-gutters': {
+      backgroundColor: codeEditorDarkThemeColors.editor.gutter.bg,
+      color: codeEditorDarkThemeColors.editor.gutter.font,
+      border: 'none',
+    },
+    // caret
+    '.cm-content': {
+      caretColor: codeEditorDarkThemeColors.editor.cursor,
+    },
+    '.cm-cursor, .cm-dropCursor': {
+      borderLeftColor: codeEditorDarkThemeColors.editor.cursor,
+    },
+    // active line
+    '.cm-activeLine': {
+      backgroundColor: codeEditorDarkThemeColors.editor.activeLine,
+    },
+    // selection
+    '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection':
+      { backgroundColor: codeEditorDarkThemeColors.editor.selection },
+    // matching bracket
+    '&.cm-focused .cm-matchingBracket': {
+      backgroundColor: codeEditorDarkThemeColors.highlight.matchingBracket,
+    },
   },
-  '&.cm-editor': {
-    height: '100%',
-  },
-  '&.cm-focused': {
-    outline: 'none',
-  },
-  '& .cm-scroller': {
-    overflow: 'auto',
-    scrollbarWidth: 'none',
-    '-ms-overflow-style': 'none',
-  },
-  '& .cm-scroller::-webkit-scrollbar': {
-    display: 'none',
-  },
-  '.cm-gutters': {
-    backgroundColor: codeEditorDarkThemeColors.editor.gutter.bg,
-    color: codeEditorDarkThemeColors.editor.gutter.font,
-    border: 'none',
-  },
-  '.cm-content': {
-    caretColor: codeEditorDarkThemeColors.editor.cursor,
-  },
-  '.cm-cursor, .cm-dropCursor': {
-    borderLeftColor: codeEditorDarkThemeColors.editor.cursor,
-  },
-  '.cm-activeLine': {
-    backgroundColor: codeEditorDarkThemeColors.editor.activeLine,
-  },
-  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection':
-    { backgroundColor: codeEditorDarkThemeColors.editor.selection },
-  '&.cm-focused .cm-matchingBracket': {
-    backgroundColor: codeEditorDarkThemeColors.highlight.matchingBracket,
-  },
-})
+  { dark: true },
+)

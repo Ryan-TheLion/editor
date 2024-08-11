@@ -190,13 +190,6 @@ class CodeEditorUtil {
       languageCompartment.get(state) ??
       languageCompartment.of(this.editor.editorLanguages[language])
 
-    return [
-      minimalSetup,
-      EditorView.lineWrapping,
-      editableExtension,
-      themeExtension,
-      languageExtension,
-      viewActiveLine(),
-    ]
+    return [minimalSetup, editableExtension, themeExtension, languageExtension, viewActiveLine()]
   }
 }

@@ -1,4 +1,4 @@
-interface CodeEditorThemeColors {
+export interface CodeEditorThemeColors {
   editor: {
     bg: string
     font: string
@@ -10,11 +10,20 @@ interface CodeEditorThemeColors {
     }
     cursor: string
     scrollbar: {
-      track: {
-        bg: string
-        border: string
+      vertical: {
+        track: {
+          bg: string
+          border: string
+        }
+        thumb: string
       }
-      thumb: string
+      horizontal: {
+        track: {
+          bg: string
+          border: string
+        }
+        thumb: string
+      }
     }
   }
   highlight: {
@@ -41,11 +50,20 @@ export const codeEditorLightThemeColors: CodeEditorThemeColors = {
     },
     cursor: '#000',
     scrollbar: {
-      track: {
-        bg: 'transparent',
-        border: '#F4F5F6',
+      vertical: {
+        track: {
+          bg: '#FCFCFC',
+          border: '#F4F5F6',
+        },
+        thumb: '#797979',
       },
-      thumb: '#797979',
+      horizontal: {
+        track: {
+          bg: 'transparent',
+          border: 'transparent',
+        },
+        thumb: '#797979',
+      },
     },
   },
   highlight: {
@@ -72,11 +90,20 @@ export const codeEditorDarkThemeColors: CodeEditorThemeColors = {
     },
     cursor: '#fff',
     scrollbar: {
-      track: {
-        bg: 'transparent',
-        border: '#2B3245',
+      vertical: {
+        track: {
+          bg: '#1C2333',
+          border: '#2B3245',
+        },
+        thumb: '#797979',
       },
-      thumb: '#797979',
+      horizontal: {
+        track: {
+          bg: 'transparent',
+          border: 'transparent',
+        },
+        thumb: '#797979',
+      },
     },
   },
   highlight: {
