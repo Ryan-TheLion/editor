@@ -24,6 +24,8 @@ export const prettierCommand: Command = (view) => {
 
   prettieredCode
     .then((code) => {
+      if (code.formatted === view.state.doc.toString()) return
+
       view.dispatch({
         changes: {
           from: 0,
