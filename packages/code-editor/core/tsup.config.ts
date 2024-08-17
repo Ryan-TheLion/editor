@@ -4,6 +4,7 @@ export default defineTsupConfig({
   overrideConfig() {
     return {
       entry: ['src/index.ts', 'src/extension/index.ts'],
+      external: ['prettier'],
     }
   },
 })
