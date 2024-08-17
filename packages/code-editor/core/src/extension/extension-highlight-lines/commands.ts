@@ -4,7 +4,7 @@ import { Command, EditorView, keymap } from '@codemirror/view'
 import {
   addLineHighlight,
   HIGHLIGHT_LINE_CLASS,
-  lineHighlightField,
+  lineHighlightFields,
   removeLineHighlight,
 } from './highlight-lines'
 
@@ -45,13 +45,15 @@ export const toggleLineHighlight: Command = (view) => {
 function lineIsHighlighted({ view, line }: { view: EditorView; line: Line }) {
   let isHighlighted = false
 
-  view.state.field(lineHighlightField).between(line.from, line.to, (from, to, value) => {
-    if (value.spec.class === HIGHLIGHT_LINE_CLASS) {
-      isHighlighted = true
+  view.state
+    .field(lineHighlightFields.lineHighlight)
+    .between(line.from, line.to, (from, to, value) => {
+      if (value.spec.class === HIGHLIGHT_LINE_CLASS) {
+        isHighlighted = true
 
-      return false
-    }
-  })
+        return false
+      }
+    })
 
   return isHighlighted
 }

@@ -10,13 +10,16 @@ import {
 
 import { lineHighlightKeymap } from './commands'
 
-interface LineEffect {
+interface LineEffectValue {
   from: number
 }
 
+type SerializedLineHighlightField = LineEffectValue[]
+type SerializedLineGutterHighlightField = LineEffectValue[]
+
 const isLineEffectValue = (
   effectValue: StateEffect<unknown>['value'],
-): effectValue is LineEffect => {
+): effectValue is LineEffectValue => {
   return true
 }
 
@@ -38,22 +41,22 @@ const gutterMark = {
 }
 
 // state effect
-export const addLineHighlight = StateEffect.define<LineEffect>({
+export const addLineHighlight = StateEffect.define<LineEffectValue>({
   map: mapRange,
 })
 
-export const removeLineHighlight = StateEffect.define<LineEffect>({
+export const removeLineHighlight = StateEffect.define<LineEffectValue>({
   map: mapRange,
 })
 
-function mapRange(value: LineEffect, change: ChangeDesc) {
+function mapRange(value: LineEffectValue, change: ChangeDesc) {
   return {
     from: change.mapPos(value.from),
   }
 }
 
 // state field
-export const lineHighlightField = StateField.define<DecorationSet>({
+const lineHighlightField = StateField.define<DecorationSet>({
   create() {
     return Decoration.none
   },
@@ -82,12 +85,30 @@ export const lineHighlightField = StateField.define<DecorationSet>({
 
     return decoration
   },
+  toJSON(decoration, state): SerializedLineHighlightField {
+    const fromList: LineEffectValue[] = []
+
+    decoration.between(0, state.doc.length, (from, to, decoration) => {
+      if (decoration.spec.class === HIGHLIGHT_LINE_CLASS) {
+        fromList.push({ from })
+      }
+    })
+
+    return [...fromList]
+  },
+  fromJSON(json) {
+    const ranges = (json as SerializedLineHighlightField).map(({ from }) =>
+      mark.highlightLine.range(from),
+    )
+
+    return ranges.length ? RangeSet.of(ranges) : Decoration.none
+  },
   provide(field) {
     return EditorView.decorations.from(field)
   },
 })
 
-export const lineGutterHighlightField = StateField.define<RangeSet<GutterMarker>>({
+const lineGutterHighlightField = StateField.define<RangeSet<GutterMarker>>({
   create() {
     return RangeSet.empty
   },
@@ -115,6 +136,24 @@ export const lineGutterHighlightField = StateField.define<RangeSet<GutterMarker>
     }
 
     return decoration
+  },
+  toJSON(rangeSet, state): SerializedLineGutterHighlightField {
+    const fromList: LineEffectValue[] = []
+
+    rangeSet.between(0, state.doc.length, (from, to, rangeSet) => {
+      if (rangeSet.elementClass === HIGHLIGHT_GUTTER_LINE_CLASS) {
+        fromList.push({ from })
+      }
+    })
+
+    return [...fromList]
+  },
+  fromJSON(json) {
+    const ranges = (json as SerializedLineGutterHighlightField).map(({ from }) =>
+      gutterMark.highlightLine.range(from),
+    )
+
+    return ranges.length ? RangeSet.of(ranges) : RangeSet.empty
   },
 })
 
@@ -173,4 +212,9 @@ export const lineHighlight = () => {
     invertedHighlight,
     lineHighlightKeymap,
   ]
+}
+
+export const lineHighlightFields = {
+  lineHighlight: lineHighlightField,
+  lineGutterHighlight: lineGutterHighlightField,
 }
