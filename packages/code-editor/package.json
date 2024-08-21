@@ -1,6 +1,9 @@
 {
   "name": "@devrun_ryan/code-editor",
-  "private": true,
+  "version": "0.0.1-alpha.11",
+  "type": "module",
+  "sideEffects": false,
+  "private": false,
   "description": "CodeMirror를 활용한 코드 에디터",
   "homepage": "https://github.com/Ryan-TheLion/editor",
   "repository": {
@@ -8,15 +11,9 @@
     "url": "https://github.com/Ryan-TheLion/editor.git",
     "directory": "packages/code-editor"
   },
-  "files": [
-    "core/dist"
-  ],
   "exports": {
-    "./core": {
-      "require": "./core/src/index.ts",
-      "import": "./core/src/index.ts"
-    },
-    "./extension": "./core/src/extension/index.ts",
+    "./core": "./core/src/index.ts",
+    "./core/extension": "./core/src/extension/index.ts",
     "./package.json": "./package.json"
   },
   "devDependencies": {
@@ -27,6 +24,8 @@
     "node": ">=18"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "restricted",
+    "directory": "lib",
+    "linkDirectory": false
   }
 }

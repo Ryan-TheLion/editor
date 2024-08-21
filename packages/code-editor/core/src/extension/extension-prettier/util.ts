@@ -1,10 +1,10 @@
 import { Language } from '@codemirror/language'
 import { CursorOptions } from 'prettier'
-import prettierBabelPlugin from 'prettier/plugins/babel.js'
-import prettierEsTreePlugin from 'prettier/plugins/estree.js'
-import prettierTypeScriptPlugin from 'prettier/plugins/typescript.js'
+import * as prettierBabelPlugin from 'prettier/plugins/babel.js'
+import * as prettierEsTreePlugin from 'prettier/plugins/estree.js'
+import * as prettierTypeScriptPlugin from 'prettier/plugins/typescript.js'
 
-import { CodeEditorSupportedLanguage } from '~/src/code-mirror'
+import { CodeEditorSupportedLanguage } from '../../code-mirror'
 
 export const getEditorLanguage = (
   languageFacet: Language | null,

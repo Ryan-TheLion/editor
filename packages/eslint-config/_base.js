@@ -29,5 +29,6 @@ module.exports = {
     'tsup.config.ts',
     'node_modules/',
     'dist/',
+    'lib/',
   ],
 }

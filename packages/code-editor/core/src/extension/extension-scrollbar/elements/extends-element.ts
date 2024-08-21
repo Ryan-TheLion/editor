@@ -1,7 +1,6 @@
 import { EditorView } from 'codemirror'
 
-import { EventManager } from '~/src/event-manager'
-
+import { EventManager } from '../../../event-manager'
 import { ScrollbarDirection } from '../extension-scrollbar'
 
 export class ScrollbarElement {
