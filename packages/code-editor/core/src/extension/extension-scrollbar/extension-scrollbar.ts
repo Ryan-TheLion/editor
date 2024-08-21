@@ -1,7 +1,6 @@
 import { EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view'
 
-import { EventManager } from '~/src/event-manager'
-
+import { EventManager } from '../../event-manager'
 import { CONTENT_PADDING_BOTTOM, SCROLL_BAR_CLASSNAME } from './constants'
 import { ScrollbarThumb } from './elements/thumb'
 import { ScrollbarTrack } from './elements/track'

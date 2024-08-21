@@ -15,6 +15,13 @@
       "cache": false,
       "persistent": true
     },
+    "copy:lib": {
+      "dependsOn": ["clean:lib"],
+      "cache": false
+    },
+    "clean:lib": {
+      "cache": false
+    },
     "//build-tsup-config": {
       "dependsOn": ["@org/tsup-config#build"]
     },

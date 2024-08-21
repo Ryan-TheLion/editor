@@ -1,8 +1,7 @@
 import { EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view'
 
-import { EventManager } from '~/src/event-manager'
-import { codeEditorDarkThemeColors, codeEditorLightThemeColors } from '~/src/theme/colors'
-
+import { EventManager } from '../../event-manager'
+import { codeEditorDarkThemeColors, codeEditorLightThemeColors } from '../../theme/colors'
 import { prettierCommand, prettierKeymap } from './command'
 
 interface PrettierCodeOptions {

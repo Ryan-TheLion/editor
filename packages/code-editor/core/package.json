@@ -1,23 +1,18 @@
 {
-  "name": "code-editor-core",
+  "name": "@devrun_ryan/code-editor-core",
   "private": true,
+  "version": "0.0.0",
+  "sideEffects": false,
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsup --env.NODE_ENV=production",
+    "dev": "tsup --env.NODE_ENV=development --watch",
+    "copy:lib": "node copy.js",
     "clean": "rm -rf dist",
+    "clean:lib": "rm -rf lib/core",
     "lint": "turbo lint"
-  },
-  "devDependencies": {
-    "@org/tsup-config": "workspace:*",
-    "@types/node": "^20",
-    "tsup": "^8.2.4"
-  },
-  "engines": {
-    "node": ">=18"
   },
   "dependencies": {
     "@codemirror/commands": "^6.6.0",
@@ -28,5 +23,21 @@
     "@lezer/common": "^1.2.1",
     "@lezer/highlight": "^1.2.0",
     "codemirror": "^6.0.1"
+  },
+  "devDependencies": {
+    "@org/tsup-config": "workspace:*",
+    "@types/node": "^20",
+    "tsup": "^8.2.4"
+  },
+  "peerDependencies": {
+    "prettier": "^3.2.5"
+  },
+  "peerDependenciesMeta": {
+    "prettier": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

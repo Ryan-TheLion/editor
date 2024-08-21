@@ -1,5 +1,4 @@
-import { CodeEditorThemeColors } from '~/src/theme/colors'
-
+import { CodeEditorThemeColors } from '../../theme/colors'
 import {
   CONTENT_PADDING_BOTTOM,
   SCROLL_BAR_CLASSNAME,
