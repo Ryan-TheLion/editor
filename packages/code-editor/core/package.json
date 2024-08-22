@@ -6,13 +6,17 @@
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./extension": "./src/extension/index.ts"
+  },
   "scripts": {
     "build": "tsup --env.NODE_ENV=production",
     "dev": "tsup --env.NODE_ENV=development --watch",
     "copy:lib": "node copy.js",
     "clean": "rm -rf dist",
     "clean:lib": "rm -rf lib/core",
-    "lint": "turbo lint"
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@codemirror/commands": "^6.6.0",

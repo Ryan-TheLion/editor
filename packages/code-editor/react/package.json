@@ -1,0 +1,35 @@
+{
+  "name": "@devrun_ryan/code-editor-react",
+  "private": true,
+  "version": "0.0.0",
+  "sideEffects": false,
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsup --env.NODE_ENV=production",
+    "dev": "tsup --env.NODE_ENV=development --watch",
+    "clean": "rm -rf dist",
+    "clean:lib": "rm -rf lib/react",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@devrun_ryan/code-editor-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@org/tsup-config": "workspace:*",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "tsup": "^8.2.4"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
