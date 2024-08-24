@@ -257,8 +257,11 @@ export class Scrollbar {
     this.#scrollDomEventManager.removeAllEventHandler()
 
     this.verticalTrack.clear()
+    this.view.scrollDOM.removeChild(this.verticalTrack.element)
+
     if (this.horizontalTrack) {
       this.horizontalTrack.clear()
+      this.view.dom.removeChild(this.horizontalTrack.element)
     }
   }
 

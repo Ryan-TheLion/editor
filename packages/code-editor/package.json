@@ -15,6 +15,7 @@
     "./core": "./core/src/index.ts",
     "./core/extension": "./core/src/extension/index.ts",
     "./react": "./react/src/index.ts",
+    "./react/*": "./react/src/*/index.ts",
     "./package.json": "./package.json"
   },
   "devDependencies": {
