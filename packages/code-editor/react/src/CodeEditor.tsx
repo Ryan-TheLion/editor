@@ -11,6 +11,7 @@ import { CodeEditorContent } from './CodeEditorContent'
 import { CodeEditorContentListener } from './ContentListener'
 import { CodeEditorContext } from './context'
 import { useCodeEditor } from './hooks'
+import { Language } from './Language'
 
 interface StarterKit {
   theme: CodeEditorConstructorProps['theme']
@@ -60,3 +61,4 @@ export const CodeEditor = ({
 
 CodeEditor.Content = CodeEditorContent
 CodeEditor.ContentListener = CodeEditorContentListener
+CodeEditor.Language = Language
