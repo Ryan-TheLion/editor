@@ -1,6 +1,12 @@
 import { indentLess, insertTab } from '@codemirror/commands'
 import { Compartment, EditorState, Extension, StateEffect, StateField } from '@codemirror/state'
-import { EditorView, highlightActiveLineGutter, keymap, lineNumbers } from '@codemirror/view'
+import {
+  EditorView,
+  highlightActiveLineGutter,
+  keymap,
+  lineNumbers,
+  ViewUpdate,
+} from '@codemirror/view'
 import { minimalSetup } from 'codemirror'
 
 import { appendConfigListener, viewActiveLine } from '../extension'
@@ -13,9 +19,13 @@ import {
   type EditorLanguagePack,
 } from './languages'
 
+export type CodeEditorState = EditorState
+
+export type CodeEditorView = EditorView
+
 export interface CodeEditorDom extends HTMLElement {}
 
-type CodeEditorContent = string | Object
+export type CodeEditorContent = string | Object
 
 type CodeEditorTheme = 'light' | 'dark' | Extension
 
@@ -23,7 +33,7 @@ interface ExtraStateFields {
   [prop: string]: StateField<any>
 }
 
-interface CodeEditorConfig {
+export interface CodeEditorConfig {
   lineWrapping?: boolean
   lineNumber?: boolean
   activeLineGutter?: boolean
@@ -35,7 +45,7 @@ interface CodeEditorConfig {
   extraFields?: ExtraStateFields
 }
 
-interface CodeEditorConstructorProps extends CodeEditorConfig {
+export interface CodeEditorConstructorProps extends CodeEditorConfig {
   state?: EditorState
   view?: EditorView
   dom?: CodeEditorDom
@@ -220,6 +230,14 @@ export class CodeEditor {
     })
   }
 
+  removeExtension(extension: Extension) {
+    const reconfigureExtension = this.extension.filter((ext) => ext != extension)
+
+    if (reconfigureExtension.length === this.extension.length) return
+
+    this.view.dispatch({ effects: StateEffect.reconfigure.of(reconfigureExtension) })
+  }
+
   changeTheme(theme: CodeEditorTheme) {
     const targetTheme = this.util.getThemeExtension(theme)
 
@@ -244,6 +262,16 @@ export class CodeEditor {
 
     if (this.editable && autoFocusOnEditable) {
       this.view.focus()
+    }
+  }
+
+  subscribeUpdateListener(callback: (update: ViewUpdate) => void) {
+    const extension = EditorView.updateListener.of(callback)
+
+    this.addExtension([extension])
+
+    return () => {
+      this.removeExtension(extension)
     }
   }
 }

@@ -20,6 +20,8 @@ export const prettierCode = ({ toolbar = true, keyBinding = true }: PrettierCode
     )
   }
 
+  if (typeof HTMLDivElement === 'undefined') return []
+
   class PrettierToolbar extends HTMLDivElement {
     #prettierButton: HTMLButtonElement
 
@@ -109,7 +111,9 @@ export const prettierCode = ({ toolbar = true, keyBinding = true }: PrettierCode
     }
   }
 
-  window.customElements.define('cm-prettier-tool', PrettierToolbar, { extends: 'div' })
+  if (!window.customElements.get('cm-prettier-tool')) {
+    window.customElements.define('cm-prettier-tool', PrettierToolbar, { extends: 'div' })
+  }
 
   return ViewPlugin.fromClass(
     class {
@@ -126,11 +130,17 @@ export const prettierCode = ({ toolbar = true, keyBinding = true }: PrettierCode
           prettierCommand(view)
         })
 
+        this.#toggleTheme(view)
+
         view.dom.append(this.#toolbar)
       }
 
       update(update: ViewUpdate) {
-        const isDarkTheme = update.view.state.facet(EditorView.darkTheme)
+        this.#toggleTheme(update.view)
+      }
+
+      #toggleTheme(view: EditorView) {
+        const isDarkTheme = view.state.facet(EditorView.darkTheme)
         this.#toolbar.shadowRoot?.host.classList.toggle('dark', isDarkTheme)
       }
 
