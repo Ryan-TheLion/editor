@@ -13,7 +13,7 @@ import { CodeEditorContext } from './context'
 import { useCodeEditor } from './hooks'
 import { Language } from './Language'
 
-interface StarterKit {
+export interface StarterKit {
   theme: CodeEditorConstructorProps['theme']
   extraExtensions: CodeEditorConstructorProps['extraExtensions']
   extraFields: CodeEditorConstructorProps['extraFields']
@@ -25,7 +25,7 @@ export interface CodeEditorProps extends Omit<CodeEditorConstructorProps, 'dom' 
   children: React.ReactNode
 }
 
-const starterKitConfig: StarterKit = {
+export const starterKitConfig: StarterKit = {
   theme: 'dark',
   extraExtensions: [firaCodeFont(), scrollbar(), prettierCode(), lineHighlight()],
   extraFields: {
