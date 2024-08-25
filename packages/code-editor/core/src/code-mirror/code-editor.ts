@@ -1,4 +1,5 @@
 import { indentLess, insertTab } from '@codemirror/commands'
+import { Language, language } from '@codemirror/language'
 import { Compartment, EditorState, Extension, StateEffect, StateField } from '@codemirror/state'
 import {
   EditorView,
@@ -138,6 +139,10 @@ export class CodeEditor {
     }
   }
 
+  get language() {
+    return this.#getLanguageFromFacet(this.view.state.facet(language))
+  }
+
   initialState({
     state,
     content,
@@ -216,6 +221,25 @@ export class CodeEditor {
     targetDom.append(this.dom)
 
     if (this.autoFocus) this.view.focus()
+  }
+
+  #getLanguageFromFacet(facet: Language | null) {
+    if (!facet) return null
+
+    const { name, parser } = facet
+
+    // @ts-ignore
+    const source = parser?.dialect?.source
+
+    if (name === 'javascript') {
+      return source === 'jsx' ? 'jsx' : 'javascript'
+    }
+
+    if (name === 'typescript') {
+      return source === 'jsx ts' ? 'tsx' : 'typescript'
+    }
+
+    return null
   }
 
   changeLanguage(language: CodeEditorSupportedLanguage) {
