@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@org/prettier-config": "workspace:*",
+    "@devrun_ryan/lib-cli": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "fs-extra": "^11.2.0",
     "prettier": "^3.2.5",

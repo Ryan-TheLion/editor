@@ -12,7 +12,7 @@
     "react": "19.0.0-rc-f994737d14-20240522",
     "react-dom": "19.0.0-rc-f994737d14-20240522",
     "next": "15.0.0-rc.0",
-    "@devrun_ryan/code-editor": "workspace:*"
+    "@devrun_ryan/code-editor-react": "workspace:*"
   },
   "devDependencies": {
     "@org/eslint-config": "workspace:*",

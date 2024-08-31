@@ -1,21 +1,30 @@
 {
   "name": "@devrun_ryan/code-editor-core",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.0.1-alpha.1",
   "sideEffects": false,
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./extension": "./src/extension/index.ts"
+    "./*": "./src/*/index.ts",
+    "./package.json": "./package.json"
+  },
+  "description": "CodeMirror를 활용한 js 코드 에디터",
+  "homepage": "https://github.com/Ryan-TheLion/editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ryan-TheLion/editor.git",
+    "directory": "packages/code-editor/core"
   },
   "scripts": {
     "build": "tsup --env.NODE_ENV=production",
     "dev": "tsup --env.NODE_ENV=development --watch",
-    "copy:lib": "node copy.js",
-    "clean": "rm -rf dist",
-    "clean:lib": "rm -rf lib/core",
+    "clean": "ryan-lib-cli clean --filter dist",
+    "clean:lib": "ryan-lib-cli clean --filter lib",
+    "copy:lib": "ryan-lib-cli copy --target-lib editor:core",
+    "build:pkg-json": "ryan-lib-cli build:pkg-json editor:core",
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
@@ -43,5 +52,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "../lib/core",
+    "linkDirectory": false
   }
 }
