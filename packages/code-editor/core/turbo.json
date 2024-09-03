@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "@devrun_ryan/lib-cli#build"],
+      "outputs": ["dist/**"]
+    },
+    "pack:lib": {
+      "dependsOn": ["build"],
+      "outputs": ["../lib/core/**"]
+    },
+    "deploy": {
+      "dependsOn": ["build", "pack:lib"],
+      "cache": false
+    },
+    "deploy:dry": {
+      "dependsOn": ["build", "pack:lib"],
+      "cache": false
+    }
+  }
+}

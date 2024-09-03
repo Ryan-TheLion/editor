@@ -5,15 +5,17 @@ import { resolve } from 'path'
 
 import { ALLOWED_TARGET_LIB, PACKAGES_DIR } from '../constants'
 import { AllowedTargetCategories, AllowedTargetLibs, BuildPkgJSONCli } from '../type/cli'
-import { PartialPkgJSONType, PkgJSONType } from '../type/pkg-type'
+import { EditorPkgJSON, PartialPkgJSONType, PkgJSONType } from '../type/pkg-type'
 import { prettierToMultiLineString } from '../util/console'
 
 const packageJSONpath = {
   from: {
+    editor: resolve(PACKAGES_DIR, 'code-editor', 'package.json'),
     ['editor:core']: resolve(PACKAGES_DIR, 'code-editor', 'core', 'package.json'),
     ['editor:react']: resolve(PACKAGES_DIR, 'code-editor', 'react', 'package.json'),
   },
   to: {
+    editor: resolve(PACKAGES_DIR, 'code-editor', 'lib', 'package.json'),
     ['editor:core']: resolve(PACKAGES_DIR, 'code-editor', 'lib', 'core', 'package.json'),
     ['editor:react']: resolve(PACKAGES_DIR, 'code-editor', 'lib', 'react', 'package.json'),
   },
@@ -170,18 +172,10 @@ function mergePkgJSON<
   return mergedPkgJSON
 }
 
-async function getPkgJSON<Lib extends AllowedTargetLibs | AllowedTargetCategories>(lib: Lib) {
-  const pkg = {
-    editor: await import('../../../code-editor/package.json', {
-      assert: { type: 'json' },
-    }).then((mod) => mod.default),
-    ['editor:core']: await import('../../../code-editor/core/package.json', {
-      assert: { type: 'json' },
-    }).then((mod) => mod.default),
-    ['editor:react']: await import('../../../code-editor/react/package.json', {
-      assert: { type: 'json' },
-    }).then((mod) => mod.default),
-  } as const
-
-  return pkg[lib] as (typeof pkg)[Lib]
+async function getPkgJSON<Lib extends AllowedTargetLibs | AllowedTargetCategories>(
+  lib: Lib,
+): Promise<EditorPkgJSON[Lib]> {
+  return fsExtra.readJsonSync(packageJSONpath.from[lib], {
+    encoding: 'utf-8',
+  })
 }

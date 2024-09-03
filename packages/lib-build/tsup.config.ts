@@ -5,9 +5,11 @@ export default defineTsupConfig({
     return {
       entry: ['src/cli.ts'],
       minify: true,
-      treeshake: true,
+      splitting: false,
+      treeshake: false,
       format: ['cjs'],
       outDir: 'bin',
+      noExternal: ['chalk'],
       dts: false,
       banner(ctx) {
         return {

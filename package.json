@@ -2,11 +2,12 @@
   "name": "editor",
   "private": true,
   "scripts": {
-    "build": "turbo build",
     "dev": "turbo dev",
+    "build": "turbo build",
+    "deploy": "turbo run deploy",
+    "deploy:dry": "turbo run deploy:dry",
+    "graph:build": "turbo run build --graph",
     "lint": "turbo lint",
-    "copy:lib": "turbo copy:lib",
-    "clean:lib": "turbo clean:lib",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

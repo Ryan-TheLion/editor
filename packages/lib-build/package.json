@@ -5,7 +5,7 @@
   "private": true,
   "main": "bin/cli.cjs",
   "scripts": {
-    "build:lib-cli": "tsup"
+    "build": "tsup"
   },
   "bin": {
     "ryan-lib-cli": "bin/cli.cjs"
