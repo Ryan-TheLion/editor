@@ -1,0 +1,27 @@
+{
+  "name": "@devrun_ryan/lib-cli",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "main": "bin/cli.cjs",
+  "scripts": {
+    "build": "tsup"
+  },
+  "bin": {
+    "ryan-lib-cli": "bin/cli.cjs"
+  },
+  "devDependencies": {
+    "@org/eslint-config": "workspace:*",
+    "@org/tsup-config": "workspace:*",
+    "@org/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "tsup": "^8.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0"
+  }
+}

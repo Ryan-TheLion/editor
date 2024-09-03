@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@devrun_ryan/lib-cli':
+        specifier: workspace:*
+        version: link:packages/lib-build
       '@org/prettier-config':
         specifier: workspace:*
         version: link:packages/prettier-config
@@ -29,9 +32,9 @@ importers:
 
   apps/demo:
     dependencies:
-      '@devrun_ryan/code-editor':
+      '@devrun_ryan/code-editor-react':
         specifier: workspace:*
-        version: link:../../packages/code-editor
+        version: link:../../packages/code-editor/react
       next:
         specifier: 15.0.0-rc.0
         version: 15.0.0-rc.0(react-dom@19.0.0-rc-f994737d14-20240522(react@19.0.0-rc-f994737d14-20240522))(react@19.0.0-rc-f994737d14-20240522)(sass@1.77.8)
@@ -75,7 +78,6 @@ importers:
       '@org/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
-    publishDirectory: lib
 
   packages/code-editor/core:
     dependencies:
@@ -115,7 +117,8 @@ importers:
         version: 20.11.24
       tsup:
         specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.4)(postcss@8.4.40)(typescript@5.4.5)
+        version: 8.2.4(@microsoft/api-extractor@7.47.4(@types/node@20.11.24))(postcss@8.4.40)(typescript@5.4.5)
+    publishDirectory: ../lib/core
 
   packages/code-editor/react:
     dependencies:
@@ -140,7 +143,8 @@ importers:
         version: 18.2.19
       tsup:
         specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.4)(postcss@8.4.40)(typescript@5.4.5)
+        version: 8.2.4(@microsoft/api-extractor@7.47.4(@types/node@20.11.24))(postcss@8.4.40)(typescript@5.4.5)
+    publishDirectory: ../lib/react
 
   packages/eslint-config:
     devDependencies:
@@ -178,6 +182,31 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
+  packages/lib-build:
+    dependencies:
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
+      commander:
+        specifier: ^12.1.0
+        version: 12.1.0
+    devDependencies:
+      '@org/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@org/tsup-config':
+        specifier: workspace:*
+        version: link:../tsup-config
+      '@org/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^20
+        version: 20.11.24
+      tsup:
+        specifier: ^8.2.4
+        version: 8.2.4(@microsoft/api-extractor@7.47.4(@types/node@20.11.24))(postcss@8.4.40)(typescript@5.4.5)
+
   packages/prettier-config: {}
 
   packages/tsup-config:
@@ -190,7 +219,7 @@ importers:
         version: link:../typescript-config
       tsup:
         specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.4)(postcss@8.4.40)(typescript@5.4.5)
+        version: 8.2.4(@microsoft/api-extractor@7.47.4(@types/node@20.11.24))(postcss@8.4.40)(typescript@5.4.5)
 
   packages/typescript-config: {}
 
@@ -1260,6 +1289,10 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
+  chalk@5.3.0:
+    resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
@@ -1297,6 +1330,10 @@ packages:
   color@4.2.3:
     resolution: {integrity: sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==}
     engines: {node: '>=12.5.0'}
+
+  commander@12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
 
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -4113,6 +4150,8 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
+  chalk@5.3.0: {}
+
   chokidar@3.6.0:
     dependencies:
       anymatch: 3.1.3
@@ -4168,6 +4207,8 @@ snapshots:
       color-convert: 2.0.1
       color-string: 1.9.1
     optional: true
+
+  commander@12.1.0: {}
 
   commander@4.1.1: {}
 
@@ -4385,7 +4426,7 @@ snapshots:
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.29.0(eslint@8.57.0))(eslint@8.57.0)
-      eslint-plugin-import: 2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.29.0(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
+      eslint-plugin-import: 2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       eslint-plugin-jsx-a11y: 6.8.0(eslint@8.57.0)
       eslint-plugin-react: 7.33.2(eslint@8.57.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.57.0)
@@ -4439,7 +4480,7 @@ snapshots:
       enhanced-resolve: 5.15.0
       eslint: 8.57.0
       eslint-module-utils: 2.8.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.29.0(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
-      eslint-plugin-import: 2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.29.0(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
+      eslint-plugin-import: 2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       fast-glob: 3.3.1
       get-tsconfig: 4.7.2
       is-core-module: 2.13.1
@@ -4488,7 +4529,7 @@ snapshots:
       eslint: 8.57.0
       ignore: 5.3.1
 
-  eslint-plugin-import@2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.29.0(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0):
+  eslint-plugin-import@2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
     dependencies:
       array-includes: 3.1.7
       array.prototype.findlastindex: 1.2.3
@@ -5890,7 +5931,7 @@ snapshots:
 
   tslib@2.6.2: {}
 
-  tsup@8.2.4(@microsoft/api-extractor@7.47.4)(postcss@8.4.40)(typescript@5.4.5):
+  tsup@8.2.4(@microsoft/api-extractor@7.47.4(@types/node@20.11.24))(postcss@8.4.40)(typescript@5.4.5):
     dependencies:
       bundle-require: 5.0.0(esbuild@0.23.0)
       cac: 6.7.14

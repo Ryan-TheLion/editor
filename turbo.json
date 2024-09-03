@@ -4,29 +4,15 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     },
     "lint": {
       "dependsOn": ["^lint"]
     },
     "dev": {
-      "dependsOn": ["//build-tsup-config"],
+      "dependsOn": ["@org/tsup-config#build"],
       "cache": false,
       "persistent": true
-    },
-    "copy:lib": {
-      "dependsOn": ["clean:lib"],
-      "cache": false
-    },
-    "clean:lib": {
-      "cache": false
-    },
-    "//build-tsup-config": {
-      "dependsOn": ["@org/tsup-config#build"]
-    },
-    "clean": {
-      "cache": false
     }
   }
 }

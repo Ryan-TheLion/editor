@@ -1,21 +1,33 @@
 {
   "name": "@devrun_ryan/code-editor-react",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.0.1",
   "sideEffects": false,
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./hooks": "./src/hooks/index.ts",
-    "./context": "./src/context/index.ts"
+    "./*": "./src/*/index.ts",
+    "./package.json": "./package.json"
+  },
+  "description": "CodeMirror를 활용한 react 코드 에디터",
+  "homepage": "https://github.com/Ryan-TheLion/editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ryan-TheLion/editor.git",
+    "directory": "packages/code-editor/react"
   },
   "scripts": {
     "build": "tsup --env.NODE_ENV=production",
     "dev": "tsup --env.NODE_ENV=development --watch",
-    "clean": "rm -rf dist",
-    "clean:lib": "rm -rf lib/react",
+    "clean": "ryan-lib-cli clean --filter dist",
+    "clean:lib": "ryan-lib-cli clean --filter lib",
+    "copy:lib": "ryan-lib-cli copy --target-lib editor:react",
+    "postbuild:lib": "ryan-lib-cli build:pkg-json editor:react",
+    "pack:lib": "pnpm run clean:lib && pnpm run copy:lib && pnpm run postbuild:lib",
+    "deploy": "pnpm --reporter=append-only --filter @devrun_ryan/code-editor-react publish",
+    "deploy:dry": "pnpm run deploy --no-git-checks --dry-run",
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
@@ -33,5 +45,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "../lib/react",
+    "linkDirectory": false
   }
 }
