@@ -29,6 +29,12 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+      # 해당 패키지를 npm 에 배포한다면 먼저 빌드하는 과정이 필요없을 수 있지만, 지금은 내부 패키지로 활용하고 싶어서 먼저 빌드후 반영하는 작업 진행
+      - name: Build internal util pkg (@org/tsup-config & @devrun_ryan/lib-cli)
+        run: pnpm --filter @org/tsup-config --filter @devrun_ryan/lib-cli build
+      # build 결과물을 재반영해서 bin 스크립트가 정상적으로 반영될 수 있도록 함
+      - name: Update internal util pkg
+        run: pnpm update --workspace @devrun_ryan/lib-cli
       - name: Create Release Pull Request Or Publish to npm
         id: changesets
         uses: changesets/action@v1

@@ -3,7 +3,6 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "@devrun_ryan/lib-cli#build"],
       "outputs": ["dist/**"]
     },
     "pack:lib": {
