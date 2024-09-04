@@ -28,8 +28,6 @@ jobs:
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
       - name: install dependencies
         run: pnpm install
-      - name: pack
-        run: pnpm
       - name: Create Release Pull Request Or Publish to npm
         id: changesets
         uses: changesets/action@v1
