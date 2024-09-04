@@ -1,0 +1,50 @@
+name: 'Release'
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: install pnpm
+        run: npm i pnpm@9.6.0 -g
+      - name: setup pnpm config
+        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
+      - name: install dependencies
+        run: pnpm install
+      - name: pack
+        run: pnpm
+      - name: Create Release Pull Request Or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # TODO: notification (slack, discord 등...)
+      - name: print result
+        if: always()
+        run: |
+          echo "job result: ${{ job.status }}"
+          echo "PR Number: ${{ steps.changesets.outputs.pullRequestNumber }}"
+          echo "hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}"
+          echo "published ${{ steps.changesets.outputs.published }}"
+          echo "publishedPackages:"
+          echo "${{steps.changesets.outputs.publishedPackages}}" | jq .
