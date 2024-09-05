@@ -6,6 +6,7 @@
     "build": "turbo build",
     "deploy": "turbo run deploy",
     "deploy:dry": "turbo run deploy:dry",
+    "local-workflow:release": "act -j release --secret-file .secrets",
     "graph:build": "turbo run build --graph",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""

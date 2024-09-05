@@ -18,6 +18,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Creating .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -39,18 +46,30 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm run deploy
+          publish: pnpm run deploy -- --no-git-checks
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      # TODO: notification (slack, discord 등...)
-      - name: print result
+      - name: Send Mail
         if: always()
-        run: |
-          echo "job result: ${{ job.status }}"
-          ls node_modules/@devrun_ryan/lib-cli/bin
-          echo "PR Number: ${{ steps.changesets.outputs.pullRequestNumber }}"
-          echo "hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}"
-          echo "published ${{ steps.changesets.outputs.published }}"
-          echo "publishedPackages:"
-          echo "${{steps.changesets.outputs.publishedPackages}}" | jq .
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: editor repo github action 결과
+          to: ${{ secrets.MAIL_TO }}
+          from: RyanEditorRepo
+          convert_markdown: true
+          html_body: |
+            ## workflow: ${{ github.workflow }} Result
+
+            [action](${{ format('https://github.com/Ryan-TheLion/editor/actions/runs/{0}', github.run_id) }})
+
+            - job result : ${{ job.status }}
+            - PR Number : ${{ steps.changesets.outputs.pullRequestNumber != '' && format('[#{0}](https://github.com/Ryan-TheLion/editor/pull/{0})', steps.changesets.outputs.pullRequestNumber) || '없음' }}
+            - hasChangesets : ${{ steps.changesets.outputs.hasChangesets }}
+            - published : ${{ steps.changesets.outputs.published }}
+            - publishedPackages : ${{ toJson(steps.changesets.outputs.publishedPackages) }}
