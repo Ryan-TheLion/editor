@@ -1,16 +1,26 @@
 import chalk from 'chalk'
 import { Command, Option } from 'commander'
 import fsExtra from 'fs-extra'
-import { resolve } from 'path'
+import { basename, resolve } from 'path'
 
 import { ALLOWED_TARGET_LIB, PACKAGES_DIR } from '../constants'
 import { AllowedTargetLibs, CopyCli } from '../type/cli'
-import { prettierToMultiLineString } from '../util/console'
+import { consoleSourceToDest, prettierToMultiLineString } from '../util/console'
+
+const rootPath = {
+  ['editor:core']: resolve(PACKAGES_DIR, 'code-editor', 'core'),
+  ['editor:react']: resolve(PACKAGES_DIR, 'code-editor', 'react'),
+}
+
+const publicFiles = {
+  ['editor:core']: [resolve(rootPath['editor:core'], 'README.md')],
+  ['editor:react']: [resolve(rootPath['editor:react'], 'README.md')],
+}
 
 const copyPath = {
   from: {
-    ['editor:core']: resolve(PACKAGES_DIR, 'code-editor', 'core', 'dist'),
-    ['editor:react']: resolve(PACKAGES_DIR, 'code-editor', 'react', 'dist'),
+    ['editor:core']: resolve(rootPath['editor:core'], 'dist'),
+    ['editor:react']: resolve(rootPath['editor:react'], 'dist'),
   },
   to: {
     ['editor:core']: resolve(PACKAGES_DIR, 'code-editor', 'lib', 'core'),
@@ -38,11 +48,37 @@ export default program
   })
 
 async function copyBuildToDeploy(lib: AllowedTargetLibs) {
-  const sourcePath = copyPath.from[lib]
-  const destPath = copyPath.to[lib]
+  const source = copyPath.from[lib]
+  const dest = copyPath.to[lib]
 
   console.log(chalk.bold.blueBright(`[copy]`), chalk.magentaBright(lib))
-  console.log(chalk.bold.cyanBright(sourcePath), chalk.bold('->'), chalk.bold.cyanBright(destPath))
 
-  fsExtra.copy(sourcePath, destPath)
+  copyPublicFiles({ lib })
+
+  consoleSourceToDest({ source, dest })
+  fsExtra.copySync(source, dest)
+}
+
+function copyPublicFiles({ lib }: { lib: AllowedTargetLibs }) {
+  const sourcePaths = publicFiles[lib]
+  const destPaths = sourcePaths.map((publicFilePath) =>
+    createPublicFileDestPath({ lib, publicFilePath }),
+  )
+
+  sourcePaths.forEach((source, index) => {
+    const dest = destPaths[index]!
+
+    consoleSourceToDest({ source, dest })
+    fsExtra.copySync(source, dest)
+  })
+}
+
+function createPublicFileDestPath({
+  lib,
+  publicFilePath,
+}: {
+  lib: AllowedTargetLibs
+  publicFilePath: string
+}) {
+  return resolve(copyPath.to[lib], basename(publicFilePath))
 }
