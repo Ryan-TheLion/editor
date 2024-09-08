@@ -1,0 +1,35 @@
+{
+  "name": "@devrun_ryan/editor-core",
+  "private": true,
+  "version": "0.0.1",
+  "sideEffects": false,
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*/index.ts",
+    "./package.json": "./package.json"
+  },
+  "description": "ProseMirror를 활용한 js 코드 에디터",
+  "homepage": "https://github.com/Ryan-TheLion/editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ryan-TheLion/editor.git",
+    "directory": "packages/editor/core"
+  },
+  "scripts": {
+    "build": "tsup --env.NODE_ENV=production",
+    "dev": "tsup --env.NODE_ENV=development --watch",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@org/tsup-config": "workspace:*",
+    "@types/node": "^20",
+    "tsup": "^8.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@devrun_ryan/editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@org/eslint-config": "workspace:*",
+    "@org/typescript-config": "workspace:*"
+  }
+}
