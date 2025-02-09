@@ -1,2 +1,0 @@
-// [TODO]
-export class Editor {}
