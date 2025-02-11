@@ -1,8 +1,16 @@
-import { indentLess, insertTab } from '@codemirror/commands'
+import {
+  defaultKeymap,
+  history,
+  historyField,
+  historyKeymap,
+  indentWithTab,
+} from '@codemirror/commands'
 import { Language, language } from '@codemirror/language'
 import { Compartment, EditorState, Extension, StateEffect, StateField } from '@codemirror/state'
 import {
+  drawSelection,
   EditorView,
+  highlightActiveLine,
   highlightActiveLineGutter,
   keymap,
   lineNumbers,
@@ -10,7 +18,13 @@ import {
 } from '@codemirror/view'
 import { minimalSetup } from 'codemirror'
 
-import { appendConfigListener, viewActiveLine } from '../extension'
+import {
+  appendConfigListener,
+  firaCodeFont,
+  lineHighlight,
+  scrollbar,
+  viewActiveLine,
+} from '../extension'
 import { darkTheme, lightTheme } from '../theme'
 import { CommandManager } from './commands'
 import {
@@ -28,22 +42,39 @@ export interface CodeEditorDom extends HTMLElement {}
 
 export type CodeEditorContent = string | Object
 
-type CodeEditorTheme = 'light' | 'dark' | Extension
+type CodeEditorThemeMode = 'light' | 'dark'
 
-interface ExtraStateFields {
+type CodeEditorTheme = {
+  light: Extension
+  dark: Extension
+}
+
+interface StateFields {
   [prop: string]: StateField<any>
 }
 
+type CreateExtensionCallback = (baseExtension: {
+  minimalSetup: typeof minimalSetup
+  drawSelection: typeof drawSelection
+  lineWrapping: typeof EditorView.lineWrapping
+  lineNumbers: typeof lineNumbers
+  activeLineGutter: typeof highlightActiveLineGutter
+  history: typeof history
+  keymap: {
+    extension: typeof keymap
+    indentWithTab: typeof indentWithTab
+    historyKeymap: typeof historyKeymap
+    defaultKeymap: typeof defaultKeymap
+  }
+}) => Extension[]
+
 export interface CodeEditorConfig {
-  lineWrapping?: boolean
-  lineNumber?: boolean
-  activeLineGutter?: boolean
-  theme?: CodeEditorTheme
-  language?: CodeEditorSupportedLanguage
   editable?: boolean
+  theme?: CodeEditorTheme
+  initialThemeMode?: CodeEditorThemeMode
+  language?: CodeEditorSupportedLanguage
+  extensions?: Extension[]
   autoFocus?: boolean
-  extraExtensions?: Extension[]
-  extraFields?: ExtraStateFields
 }
 
 export interface CodeEditorConstructorProps extends CodeEditorConfig {
@@ -58,64 +89,153 @@ export class CodeEditor {
   view: EditorView
   dom: CodeEditorDom
 
-  extension: Extension[] = []
-  extraFields?: ExtraStateFields
+  extensions: Extension[] = []
+  #stateFields!: StateFields | null
 
   autoFocus: boolean
 
-  #themeCompartment: Compartment
-  theme: CodeEditorTheme
+  #theme!: CodeEditorTheme
+  #themeMode!: CodeEditorThemeMode
+  #themeCompartment!: Compartment
 
-  #languageCompartment: Compartment
-  editorLanguages: EditorLanguagePack
+  editorLanguages!: EditorLanguagePack
+  #languageCompartment!: Compartment
 
-  #editableCompartment: Compartment
+  #editableCompartment!: Compartment
 
-  util: CodeEditorUtil
   commandManager: CommandManager
+
+  /**
+   * 에디터에서 사용할 extensions를 커스텀해서 만들 수 있도록 도와주는 유틸 함수
+   * @example
+   * ```ts
+   * new CodeEditor({
+   *   // ...
+   *   extensions: CodeEditor.createInitialExtensions(({lineWrapping, lineNumbers, history, keymap}) => {
+   *    return [
+   *      history(),
+   *      lineNumbers(),
+   *      lineWrapping,
+   *      firaCodeFont(), // 외부 extension
+   *      keymap.extension.of([
+   *        keymap.indentWithTab,
+   *        ...keymap.historyKeymap,
+   *        ...keymap.defaultKeymap
+   *      ])
+   *    ]
+   *   })
+   * })
+   * ```
+   */
+  static createInitialExtensions(callback: CreateExtensionCallback): Extension[] {
+    return callback({
+      minimalSetup,
+      drawSelection,
+      lineWrapping: EditorView.lineWrapping,
+      lineNumbers,
+      activeLineGutter: highlightActiveLineGutter,
+      history,
+      keymap: {
+        extension: keymap,
+        indentWithTab,
+        historyKeymap,
+        defaultKeymap,
+      },
+    })
+  }
+
+  /**
+   * extensions
+   *
+   * ```
+   * [
+   *   history(),
+   *   scrollbar({ horizontal: true }),
+   *   drawSelection(),
+   *   lineNumbers(),
+   *   highlightActiveLine(),
+   *   highlightActiveLineGutter(),
+   *   lineHighlight(),
+   *   viewActiveLine(),
+   *   firaCodeFont(),
+   *   keymap.of([indentWithTab, ...historyKeymap, ...defaultKeymap])
+   * ]
+   * ```
+   *
+   * @example
+   * ```ts
+   * new CodeEditor({
+   *   // ...
+   *   extensions: CodeEditor.starterKit
+   * })
+   * ```
+   */
+  static starterKit = [
+    history(),
+    scrollbar({ horizontal: true }),
+    drawSelection(),
+    lineNumbers(),
+    highlightActiveLine(),
+    highlightActiveLineGutter(),
+    lineHighlight(),
+    viewActiveLine(),
+    firaCodeFont(),
+    keymap.of([indentWithTab, ...historyKeymap, ...defaultKeymap]),
+  ]
+
+  static extractStateFields(extensions: Extension[]) {
+    const stateFieldArray = flatten(extensions).filter((item) => item instanceof StateField)
+
+    if (!stateFieldArray.length) return null
+
+    return stateFieldArray.reduce((fields, field) => {
+      const fieldId = (field as StateField<any> & { id: number }).id
+
+      return {
+        ...fields,
+        [`cm-state-field-${fieldId}`]: field,
+      }
+    }, {} as StateFields)
+  }
 
   constructor({
     state,
     view,
     dom,
     content,
-    theme = 'dark',
+    theme = {
+      light: lightTheme,
+      dark: darkTheme,
+    },
+    initialThemeMode = 'dark',
     editable = true,
-    lineWrapping = false,
-    lineNumber = true,
-    activeLineGutter = true,
     language = CODE_EDITOR_DEFAULT_LANGUAGE,
     autoFocus = false,
-    extraExtensions = [],
-    extraFields,
+    extensions = [],
   }: CodeEditorConstructorProps = {}) {
-    this.#themeCompartment = new Compartment()
-    this.#editableCompartment = new Compartment()
-    this.#languageCompartment = new Compartment()
-
-    this.theme = theme
-    this.editorLanguages = { ...CodeEditorLanguages }
+    const EditableExtension = this.initialEditable(editable)
+    const ThemeExtension = this.initialTheme({ theme, themeMode: initialThemeMode })
+    const LanguageExtension = this.initialLanguage({ languagePack: CodeEditorLanguages, language })
 
     this.autoFocus = autoFocus
 
-    this.util = new CodeEditorUtil({ editor: this })
+    this.extensions = [
+      EditableExtension,
+      ThemeExtension,
+      LanguageExtension,
+      ...extensions,
+      appendConfigListener((extension) => {
+        console.log({ extension, this: this })
+        this.extensions = [...this.extensions, ...extension]
+      }),
+    ]
 
-    this.extraFields = extraFields
-
-    this.extension = this.initialExtension({
-      lineWrapping,
-      lineNumber,
-      activeLineGutter,
-      editable,
-      theme,
-      language,
-      extraExtensions,
-    })
+    this.#stateFields = CodeEditor.extractStateFields(extensions)
 
     this.state = this.initialState({
       state,
       content,
-      extension: this.extension,
+      extensions: this.extensions,
     })
 
     this.view = this.initialView({ view, dom })
@@ -131,36 +251,40 @@ export class CodeEditor {
     return this.view.state.facet(EditorView.editable.reader)
   }
 
-  get compartments() {
-    return {
-      editable: this.#editableCompartment,
-      theme: this.#themeCompartment,
-      language: this.#languageCompartment,
-    }
-  }
-
   get language() {
     return this.#getLanguageFromFacet(this.view.state.facet(language))
+  }
+
+  get theme(): CodeEditorTheme {
+    return this.#theme
+  }
+
+  get themeMode(): CodeEditorThemeMode {
+    return this.#themeMode
+  }
+
+  get stateFields(): StateFields | null {
+    return this.#stateFields
   }
 
   initialState({
     state,
     content,
-    extension,
+    extensions,
   }: {
     state?: EditorState
     content?: CodeEditorContent
-    extension?: Extension
+    extensions?: Extension
   }): EditorState {
     if (state) return state
 
     if (typeof content === 'object') {
-      return EditorState.fromJSON(content, { extensions: extension }, this.extraFields)
+      return this.fromJSON(content)
     }
 
     return EditorState.create({
       doc: content ?? '',
-      extensions: extension,
+      extensions,
     })
   }
 
@@ -173,34 +297,37 @@ export class CodeEditor {
     })
   }
 
-  initialExtension({
-    lineWrapping,
-    lineNumber,
-    activeLineGutter,
-    editable = true,
-    theme = 'dark',
-    language = 'javascript',
-    extraExtensions,
-  }: Omit<CodeEditorConfig, 'autoFocus' | 'extraFields'>) {
-    const editorInitialExtension: {
-      lineWrapping?: Extension
-      lineNumber?: Extension
-      activeLineGutter?: Extension
-    } = {
-      ...(lineWrapping && { lineWrapping: EditorView.lineWrapping }),
-      ...(lineNumber && { lineNumber: lineNumbers() }),
-      ...(activeLineGutter && { activeLineGutter: highlightActiveLineGutter() }),
+  initialEditable(editable: boolean) {
+    this.#editableCompartment = new Compartment()
+
+    return this.#editableCompartment.of(EditorView.editable.of(editable))
+  }
+
+  initialTheme({ theme, themeMode }: { theme: CodeEditorTheme; themeMode: CodeEditorThemeMode }) {
+    this.#themeCompartment = new Compartment()
+
+    this.#theme = theme
+    this.#themeMode = themeMode
+
+    return this.#themeCompartment.of(this.theme[themeMode])
+  }
+
+  initialLanguage({
+    languagePack,
+    language,
+  }: {
+    languagePack: EditorLanguagePack
+    language: CodeEditorSupportedLanguage
+  }) {
+    this.#languageCompartment = new Compartment()
+
+    const editorLanguagePack = {
+      ...languagePack,
     }
 
-    return [
-      ...this.util.getBaseExtension({ editable, theme, language }),
-      ...Array.from(Object.values(editorInitialExtension)),
-      ...Array.from(
-        Object.values({
-          ...(extraExtensions && { extraExtensions }),
-        }),
-      ),
-    ]
+    this.editorLanguages = editorLanguagePack
+
+    return this.#languageCompartment.of(editorLanguagePack[language])
   }
 
   toText() {
@@ -208,11 +335,44 @@ export class CodeEditor {
   }
 
   fromJSON(json: any) {
-    return EditorState.fromJSON(json, { extensions: this.extension }, this.extraFields)
+    return EditorState.fromJSON(
+      json,
+      { extensions: this.extensions },
+      this.#stateFields ?? undefined,
+    )
   }
 
-  toJSON() {
-    return this.view.state.toJSON(this.extraFields)
+  toJSON(opt?: { excludedStateFields: StateField<any>[] }) {
+    const stateFields = (({
+      editorStateFields,
+      excludeStateFields,
+    }: {
+      editorStateFields: StateFields | null
+      excludeStateFields?: StateField<any>[]
+    }) => {
+      if (!editorStateFields) return undefined
+
+      const excludeFields = excludeStateFields?.length ? excludeStateFields : [historyField]
+      if (!excludeFields.length) return editorStateFields
+
+      return Array.from(Object.entries(editorStateFields)).reduce((fields, [key, field]) => {
+        if (excludeFields.find((excludeField) => excludeField === field)) {
+          return {
+            ...fields,
+          }
+        }
+
+        return {
+          ...fields,
+          [key]: field,
+        }
+      }, {} as StateFields)
+    })({
+      editorStateFields: this.#stateFields,
+      excludeStateFields: opt?.excludedStateFields,
+    })
+
+    return this.view.state.toJSON(stateFields)
   }
 
   attachDom<DomElement extends HTMLElement>(targetDom: DomElement) {
@@ -255,23 +415,23 @@ export class CodeEditor {
   }
 
   removeExtension(extension: Extension) {
-    const reconfigureExtension = this.extension.filter((ext) => ext != extension)
+    const reconfigureExtension = this.extensions.filter((ext) => ext != extension)
 
-    if (reconfigureExtension.length === this.extension.length) return
+    if (reconfigureExtension.length === this.extensions.length) return
 
     this.view.dispatch({ effects: StateEffect.reconfigure.of(reconfigureExtension) })
   }
 
-  changeTheme(theme: CodeEditorTheme) {
-    const targetTheme = this.util.getThemeExtension(theme)
+  changeThemeMode(themeMode: CodeEditorThemeMode) {
+    const currentThemeMode = this.themeMode
 
-    if (this.#themeCompartment.get(this.view.state) == targetTheme) return
-
-    this.theme = theme
+    if (currentThemeMode === themeMode) return
 
     this.view.dispatch({
-      effects: this.#themeCompartment.reconfigure(targetTheme),
+      effects: this.#themeCompartment.reconfigure(this.theme[themeMode]),
     })
+
+    this.#themeMode = themeMode
   }
 
   setEditable(
@@ -300,87 +460,18 @@ export class CodeEditor {
   }
 }
 
-class CodeEditorUtil {
-  editor: CodeEditor
+function flatten<T>(array: Array<T>) {
+  let flattenedArray: T[] = []
 
-  constructor({ editor }: { editor: CodeEditor }) {
-    this.editor = editor
+  for (const item of array) {
+    if (Array.isArray(item)) {
+      flattenedArray = [...flattenedArray, ...flatten(item)]
+
+      continue
+    }
+
+    flattenedArray = [...flattenedArray, item]
   }
 
-  getThemeExtension(theme: CodeEditorTheme) {
-    if (theme === 'light') return lightTheme
-    if (theme === 'dark') return darkTheme
-
-    return theme
-  }
-
-  getBaseExtension({
-    editable,
-    theme,
-    language,
-  }: {
-    editable: boolean
-    theme: CodeEditorTheme
-    language: CodeEditorSupportedLanguage
-  }) {
-    const state = this.editor.view?.state
-
-    const {
-      editable: editableCompartment,
-      theme: themeCompartment,
-      language: languageCompartment,
-    } = this.editor.compartments
-
-    const editableExtension = getExtensionFromCompartment({
-      compartment: editableCompartment,
-      state,
-      fallbackExtension: editableCompartment.of(EditorView.editable.of(editable)),
-    })
-
-    const themeExtension = getExtensionFromCompartment({
-      compartment: themeCompartment,
-      state,
-      fallbackExtension: themeCompartment.of(this.getThemeExtension(theme)),
-    })
-
-    const languageExtension = getExtensionFromCompartment({
-      compartment: languageCompartment,
-      state,
-      fallbackExtension: languageCompartment.of(this.editor.editorLanguages[language]),
-    })
-
-    return [
-      minimalSetup,
-      keymap.of([
-        {
-          key: 'Tab',
-          run: insertTab,
-          shift: indentLess,
-        },
-      ]),
-      editableExtension,
-      themeExtension,
-      languageExtension,
-      appendConfigListener((extension) => {
-        this.editor.extension = [...this.editor.extension, ...extension]
-      }),
-      viewActiveLine(),
-    ]
-  }
-}
-
-function getExtensionFromCompartment({
-  compartment,
-  state,
-  fallbackExtension,
-}: {
-  compartment: Compartment
-  state?: EditorState
-  fallbackExtension: Extension
-}) {
-  if (state) {
-    return compartment.get(state) ?? fallbackExtension
-  }
-
-  return fallbackExtension
+  return flattenedArray
 }

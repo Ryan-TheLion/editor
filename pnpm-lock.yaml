@@ -38,6 +38,9 @@ importers:
 
   apps/demo:
     dependencies:
+      '@devrun_ryan/code-editor-core':
+        specifier: workspace:*
+        version: link:../../packages/code-editor/core
       '@devrun_ryan/code-editor-react':
         specifier: workspace:*
         version: link:../../packages/code-editor/react
