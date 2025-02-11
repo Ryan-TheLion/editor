@@ -42,18 +42,18 @@ export interface CodeEditorDom extends HTMLElement {}
 
 export type CodeEditorContent = string | Object
 
-type CodeEditorThemeMode = 'light' | 'dark'
+export type CodeEditorThemeMode = 'light' | 'dark'
 
-type CodeEditorTheme = {
+export type CodeEditorTheme = {
   light: Extension
   dark: Extension
 }
 
-interface StateFields {
+export interface StateFields {
   [prop: string]: StateField<any>
 }
 
-type CreateExtensionCallback = (baseExtension: {
+export type CreateExtensionCallback = (baseExtension: {
   minimalSetup: typeof minimalSetup
   drawSelection: typeof drawSelection
   lineWrapping: typeof EditorView.lineWrapping
