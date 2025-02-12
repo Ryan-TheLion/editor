@@ -1,13 +1,7 @@
-import { CodeEditor, CodeEditorDom, CodeEditorState } from '@devrun_ryan/code-editor-core'
-import {
-  firaCodeFont,
-  lineHighlight,
-  lineHighlightFields,
-  scrollbar,
-} from '@devrun_ryan/code-editor-core/extension'
+import { CodeEditor, CodeEditorDom, historyField, StateFields } from '@devrun_ryan/code-editor-core'
 import { isEqual } from 'lodash-es'
 import { Node } from 'prosemirror-model'
-import { TextSelection } from 'prosemirror-state'
+import { StateField, TextSelection } from 'prosemirror-state'
 import { EditorView, NodeView } from 'prosemirror-view'
 
 import { Editor } from '../../../editor'
@@ -15,17 +9,17 @@ import { NodeViewConstructorParams } from '../../../typing'
 import { getNodeAttrs } from '../../utils'
 import { CODE_BLOCK_LANGUAGES, CodeBlockAttrs } from './code-block-extension'
 
-type CodeMirrorJSON<
-  StateFields extends Parameters<CodeEditorState['toJSON']>[0],
-  Options extends {
-    extractStateFields: boolean
-  },
-> = Options['extractStateFields'] extends false
-  ? {
-      doc: any
-      selection: { ranges: { anchor: number; head: number }[]; main: number }
-    } & { [K in keyof StateFields]: any }
-  : { [K in keyof StateFields]: any }
+// type CodeMirrorJSON<
+//   StateFields extends Parameters<CodeEditorState['toJSON']>[0],
+//   Options extends {
+//     extractStateFields: boolean
+//   },
+// > = Options['extractStateFields'] extends false
+//   ? {
+//       doc: any
+//       selection: { ranges: { anchor: number; head: number }[]; main: number }
+//     } & { [K in keyof StateFields]: any }
+//   : { [K in keyof StateFields]: any }
 
 type Cleanup = () => void
 
@@ -66,14 +60,11 @@ export class CodeBlockView implements NodeView {
     this.cm = new CodeEditor({
       content: this.initialContent(node),
       editable: view.editable,
+      extensions: CodeEditor.starterKit,
       ...(nodeAttributes.language &&
         CODE_BLOCK_LANGUAGES.includes(nodeAttributes.language) && {
           language: nodeAttributes.language,
         }),
-      extraExtensions: [firaCodeFont(), lineHighlight(), scrollbar({ horizontal: true })],
-      extraFields: {
-        ...lineHighlightFields,
-      },
     })
 
     this.dom = this.cm.dom
@@ -92,11 +83,7 @@ export class CodeBlockView implements NodeView {
       if (!this.cm.view.hasFocus) return
       if (this.updating) return
 
-      const stateFields = this.getCodeMirrorJSON({
-        state: update.state,
-        stateFields: lineHighlightFields,
-        extractStateFields: true,
-      })
+      const stateFields = this.getStateFields()
 
       const diffStateFields = this.getDiffStateFields({
         stateFields,
@@ -271,36 +258,45 @@ export class CodeBlockView implements NodeView {
     }
   }
 
-  getCodeMirrorJSON<
-    StateFields extends Parameters<CodeEditorState['toJSON']>[0],
-    ExtractStateFields extends boolean = false,
-  >({
-    state,
-    stateFields,
-    extractStateFields,
-  }: {
-    state: CodeEditorState
-    stateFields?: StateFields
-    extractStateFields?: ExtractStateFields
-  }): CodeMirrorJSON<StateFields, { extractStateFields: ExtractStateFields }> {
-    const json = state.toJSON(stateFields)
+  getStateFields(opt?: { excludeStateFields: StateField<any>[] }) {
+    const stateFields = (({
+      editorStateFields,
+      excludeStateFields,
+    }: {
+      editorStateFields: StateFields | null
+      excludeStateFields?: StateField<any>[]
+    }) => {
+      if (!editorStateFields) return null
 
-    if (extractStateFields) {
-      // eslint-disable-next-line no-unused-vars
-      const { doc, selection, ...stateFields } = json
+      const excludeFields = excludeStateFields?.length ? excludeStateFields : [historyField]
+      if (!excludeFields.length) return editorStateFields
 
-      return stateFields
-    }
+      return Array.from(Object.entries(editorStateFields)).reduce((fields, [key, field]) => {
+        if (excludeFields.find((excludeField) => excludeField === field)) {
+          return {
+            ...fields,
+          }
+        }
 
-    return json
+        return {
+          ...fields,
+          [key]: field,
+        }
+      }, {} as StateFields)
+    })({
+      editorStateFields: this.cm.stateFields,
+      excludeStateFields: opt?.excludeStateFields,
+    })
+
+    return stateFields
   }
 
-  getDiffStateFields<StateFields extends NonNullable<Parameters<CodeEditorState['toJSON']>[0]>>({
-    stateFields,
-  }: {
-    stateFields: StateFields
-  }) {
+  getDiffStateFields({ stateFields }: { stateFields: StateFields | null }) {
     const nodeStateFields = this.getAttrs().stateFields
+
+    if (!stateFields) {
+      return !!nodeStateFields && Object.keys(nodeStateFields).length ? nodeStateFields : null
+    }
 
     const equal = Array.from(Object.keys(stateFields)).reduce(
       (acc, key) => {
