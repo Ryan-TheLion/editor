@@ -1,10 +1,7 @@
 import { CodeEditorContent } from '@devrun_ryan/code-editor-core'
-import { firaCodeFont, lineHighlight, scrollbar } from '@devrun_ryan/code-editor-core/extension'
 
-import { CodeEditor, CodeEditorProps, StarterKit, starterKitConfig } from './CodeEditor'
+import { CodeEditor, CodeEditorProps } from './CodeEditor'
 import { CodeEditorContentProps } from './CodeEditorContent'
-
-export interface ViewerStarterKit extends StarterKit {}
 
 export interface CodeViewerProps
   extends Omit<
@@ -15,16 +12,10 @@ export interface CodeViewerProps
   content: CodeEditorContent
 }
 
-const starterKitViewerConfig: ViewerStarterKit = {
-  ...starterKitConfig,
-  extraExtensions: [firaCodeFont(), scrollbar(), lineHighlight()],
-}
-
 export const CodeViewer = ({ content, width, height, starterKit, ...props }: CodeViewerProps) => {
   const config = {
+    starterKit,
     ...props,
-    ...(starterKit && { ...starterKitViewerConfig }),
-    activeLineGutter: false,
   }
 
   return (

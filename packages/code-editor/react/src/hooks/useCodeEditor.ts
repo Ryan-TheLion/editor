@@ -15,18 +15,12 @@ interface UseCodeEditor {
   (props?: UseCodeEditorProps): EditorPayload
 }
 
-export const useCodeEditor: UseCodeEditor = ({
-  content,
-  theme,
-  extraExtensions,
-  extraFields,
-  ...props
-} = {}) => {
+export const useCodeEditor: UseCodeEditor = ({ ...props } = {}) => {
   const [editor, setEditor] = useState<CodeEditor | null>(null)
 
   useEffect(() => {
     if (!editor) {
-      const editor = createEditor({ content, theme, extraExtensions, extraFields, ...props })
+      const editor = createEditor({ ...props })
       setEditor(editor)
 
       return
@@ -44,18 +38,8 @@ export const useCodeEditor: UseCodeEditor = ({
   }
 }
 
-const createEditor = ({
-  content,
-  theme,
-  extraExtensions,
-  extraFields,
-  ...props
-}: UseCodeEditorProps = {}) => {
+const createEditor = ({ ...props }: UseCodeEditorProps = {}) => {
   return new CodeEditor({
-    content,
-    theme,
-    extraExtensions,
-    extraFields,
     ...props,
   })
 }

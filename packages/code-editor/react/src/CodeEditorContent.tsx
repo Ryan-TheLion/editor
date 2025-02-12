@@ -28,7 +28,7 @@ export const CodeEditorContent = ({
     if (content && !isSameContent({ editorState: context.editor.view.state, content })) {
       const initialState = context.editor.initialState({
         content,
-        extension: context.editor.extension,
+        extensions: context.editor.extensions,
       })
 
       context.editor.view.setState(initialState)

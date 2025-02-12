@@ -1,11 +1,8 @@
-import { CodeEditorConstructorProps } from '@devrun_ryan/code-editor-core'
 import {
-  firaCodeFont,
-  lineHighlight,
-  lineHighlightFields,
-  prettierCode,
-  scrollbar,
-} from '@devrun_ryan/code-editor-core/extension'
+  CodeEditor as Editor,
+  CodeEditorConstructorProps,
+  Extension,
+} from '@devrun_ryan/code-editor-core'
 
 import { CodeEditorContent } from './CodeEditorContent'
 import { CodeEditorContentListener } from './ContentListener'
@@ -13,43 +10,29 @@ import { CodeEditorContext } from './context'
 import { useCodeEditor } from './hooks'
 import { Language } from './Language'
 
-export interface StarterKit {
-  theme: CodeEditorConstructorProps['theme']
-  extraExtensions: CodeEditorConstructorProps['extraExtensions']
-  extraFields: CodeEditorConstructorProps['extraFields']
-  lineWrapping: true
-}
-
 export interface CodeEditorProps extends Omit<CodeEditorConstructorProps, 'dom' | 'content'> {
   starterKit?: boolean
   children: React.ReactNode
 }
 
-export const starterKitConfig: StarterKit = {
-  theme: 'dark',
-  extraExtensions: [firaCodeFont(), scrollbar(), prettierCode(), lineHighlight()],
-  extraFields: {
-    ...lineHighlightFields,
-  },
-  lineWrapping: true,
-}
+export const CodeEditor = ({ children, starterKit, extensions, ...props }: CodeEditorProps) => {
+  const codeEditorExtensions: Extension[] | undefined = (({
+    editorExtensions,
+    starterKit,
+  }: {
+    editorExtensions?: Extension[]
+    starterKit?: boolean
+  }) => {
+    if (starterKit) return Editor.starterKit
 
-export const CodeEditor = ({
-  theme,
-  extraExtensions,
-  extraFields,
-  starterKit,
-  children,
-  ...props
-}: CodeEditorProps) => {
+    if (!editorExtensions?.length) return undefined
+
+    return editorExtensions
+  })({ editorExtensions: extensions, starterKit })
+
   const { editor } = useCodeEditor({
-    theme,
-    extraExtensions,
-    extraFields,
+    extensions: codeEditorExtensions,
     ...props,
-    ...(starterKit && {
-      ...starterKitConfig,
-    }),
   })
 
   return (
