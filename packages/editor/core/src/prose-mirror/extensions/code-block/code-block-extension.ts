@@ -1,7 +1,4 @@
-import {
-  CODE_EDITOR_DEFAULT_LANGUAGE,
-  CodeEditorSupportedLanguage,
-} from '@devrun_ryan/code-editor-core'
+import { CODE_MIRROR_EDITOR_DEFAULT_LANGUAGE } from '@devrun_ryan/code-editor-core'
 import { Node } from 'prosemirror-model'
 import { Command, EditorState, NodeSelection, Plugin, PluginKey } from 'prosemirror-state'
 
@@ -23,7 +20,7 @@ import { CodeBlockView } from './code-block-view'
  */
 export interface CodeBlockAttrs {
   /** code editor(codemirror) 에서 사용 가능한 언어 (ex. `javascript`) */
-  language: CodeEditorSupportedLanguage
+  language: string
   /** (codemirror json 콘텐츠로 초기화 시) selection을 적용하기 위한 json 값 */
   selection: any
   /**
@@ -33,12 +30,7 @@ export interface CodeBlockAttrs {
   stateFields: Record<string, any>
 }
 
-export const CODE_BLOCK_LANGUAGES: CodeEditorSupportedLanguage[] = [
-  'javascript',
-  'typescript',
-  'jsx',
-  'tsx',
-]
+export const CODE_BLOCK_LANGUAGES = ['javascript', 'typescript', 'jsx', 'tsx']
 
 /** code block `node spec` attrs */
 export type CodeBlockAttributeSpecs = TypedAttributeSpecs<CodeBlockAttrs>
@@ -46,7 +38,7 @@ export type CodeBlockAttributeSpecs = TypedAttributeSpecs<CodeBlockAttrs>
 export interface CodeBlockCommands {
   insertCodeBlock: Command
   deleteCodeBlock: Command
-  setLanguage: (language: CodeEditorSupportedLanguage) => Command
+  setLanguage: (language: string) => Command
 }
 
 export interface CodeBlockUtils {
@@ -58,7 +50,7 @@ export interface CodeBlockUtils {
 
 export const CODE_BLOCK_NAME = 'code_block' as const
 
-// [TODO] 코드 에디터 라이브러리를 수정한 뒤 추가로 구현 예정
+// TODO: 코드 에디터 라이브러리를 수정한 뒤 추가로 구현 예정
 export const CodeBlock = NodeExtension.create<
   MergeConfigMap<{
     name: typeof CODE_BLOCK_NAME
@@ -74,7 +66,7 @@ export const CodeBlock = NodeExtension.create<
         ...baseNodeSpec,
         attrs: {
           language: {
-            default: CODE_EDITOR_DEFAULT_LANGUAGE,
+            default: CODE_MIRROR_EDITOR_DEFAULT_LANGUAGE,
             validate(value) {
               if (CODE_BLOCK_LANGUAGES.includes(value)) return
 

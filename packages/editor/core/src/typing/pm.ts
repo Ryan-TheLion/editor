@@ -25,8 +25,6 @@ export type ReturnAttrs = Attrs | false | null
 
 export type DOMOutputArraySpec = [string, ...any[]]
 
-export type ViewMutationRecord = MutationRecord | { type: 'selection'; target: HTMLElement }
-
 /* ---- nodeView ---- */
 
 export type NodeViewConstructorParams = {
@@ -43,11 +41,4 @@ export type MarkViewConstructorParams = {
   mark: Parameters<MarkViewConstructor>[0]
   view: Parameters<MarkViewConstructor>[1]
   inline: Parameters<MarkViewConstructor>[2]
-}
-
-export interface MarkView {
-  dom: HTMLElement
-  contentDOM?: HTMLElement
-  ignoreMutation?: (mutation: ViewMutationRecord) => boolean
-  destroy?: () => void
 }

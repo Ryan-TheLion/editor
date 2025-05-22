@@ -1,25 +1,14 @@
-import { CodeEditor, CodeEditorDom, historyField, StateFields } from '@devrun_ryan/code-editor-core'
+import { CodeMirrorEditor, CodeEditorDOM, StateFields } from '@devrun_ryan/code-editor-core'
+import { historyField } from '@devrun_ryan/code-editor-core/cm'
 import { isEqual } from 'lodash-es'
 import { Node } from 'prosemirror-model'
 import { StateField, TextSelection } from 'prosemirror-state'
-import { EditorView, NodeView } from 'prosemirror-view'
+import { EditorView, NodeView, ViewMutationRecord } from 'prosemirror-view'
 
 import { Editor } from '../../../editor'
 import { NodeViewConstructorParams } from '../../../typing'
 import { getNodeAttrs } from '../../utils'
 import { CODE_BLOCK_LANGUAGES, CodeBlockAttrs } from './code-block-extension'
-
-// type CodeMirrorJSON<
-//   StateFields extends Parameters<CodeEditorState['toJSON']>[0],
-//   Options extends {
-//     extractStateFields: boolean
-//   },
-// > = Options['extractStateFields'] extends false
-//   ? {
-//       doc: any
-//       selection: { ranges: { anchor: number; head: number }[]; main: number }
-//     } & { [K in keyof StateFields]: any }
-//   : { [K in keyof StateFields]: any }
 
 type Cleanup = () => void
 
@@ -32,11 +21,11 @@ type CodeBlockViewCleanup = Record<'editor' | 'cm', Cleanup | null>
 */
 
 export class CodeBlockView implements NodeView {
-  dom: CodeEditorDom
+  dom: CodeEditorDOM
   node: Node
 
   editor: Editor
-  cm: CodeEditor
+  cm: CodeMirrorEditor
 
   view: EditorView
   getPos: NodeViewConstructorParams['getPos']
@@ -57,17 +46,17 @@ export class CodeBlockView implements NodeView {
 
     this.editor = editor
 
-    this.cm = new CodeEditor({
+    this.cm = new CodeMirrorEditor({
       content: this.initialContent(node),
       editable: view.editable,
-      extensions: CodeEditor.starterKit,
+      extensions: CodeMirrorEditor.starterKit,
       ...(nodeAttributes.language &&
         CODE_BLOCK_LANGUAGES.includes(nodeAttributes.language) && {
-          language: nodeAttributes.language,
+          language: nodeAttributes.language as any,
         }),
     })
 
-    this.dom = this.cm.dom
+    this.dom = this.cm.view.dom
 
     this.cleanup.editor = editor.subscribeUpdateListener(() => {
       if (this.cm.editable !== this.view.editable) {
@@ -143,7 +132,7 @@ export class CodeBlockView implements NodeView {
     const nodeAttributes = this.getAttrs(node)
 
     if (this.cm.language !== nodeAttributes.language) {
-      this.cm.changeLanguage(nodeAttributes.language)
+      this.cm.setLanguage(nodeAttributes.language as any)
     }
 
     if (this.updating) return true
@@ -215,7 +204,7 @@ export class CodeBlockView implements NodeView {
     this.cm.view.focus()
   }
 
-  ignoreMutation(mutation: MutationRecord) {
+  ignoreMutation(mutation: ViewMutationRecord) {
     if (!this.dom.contains(mutation.target)) return false
 
     return true

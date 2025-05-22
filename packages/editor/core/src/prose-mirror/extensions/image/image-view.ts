@@ -1,9 +1,9 @@
 import EventEmitter from 'events'
 import { DOMOutputSpec, DOMSerializer, Node } from 'prosemirror-model'
 import { NodeSelection } from 'prosemirror-state'
-import { EditorView, NodeView } from 'prosemirror-view'
+import { EditorView, NodeView, ViewMutationRecord } from 'prosemirror-view'
 
-import { NodeViewConstructorParams, ViewMutationRecord } from '../../../typing'
+import { NodeViewConstructorParams } from '../../../typing'
 import { base64ToBlob, getNodeAttrs, imageAspectRatio, isNodeSelection } from '../../utils'
 import { BLOCK_IMAGE_NAME } from './block-image'
 import { ImageAttrs, INLINE_IMAGE_NAME } from './inline-image'

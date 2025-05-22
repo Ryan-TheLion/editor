@@ -5,7 +5,7 @@ export default defineTsupConfig({
     const isDev = env?.NODE_ENV === 'development' || watch
 
     return {
-      entry: ['src/index.ts', 'src/extension/index.ts'],
+      entry: ['src/index.ts', 'src/utils/index.ts', 'src/cm/index.ts'],
       minify: !isDev,
       treeshake: true,
       external: ['prettier'],

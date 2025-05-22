@@ -18,7 +18,7 @@
     "@org/prettier-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "fs-extra": "^11.2.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.5.3",
     "turbo": "^2.0.9",
     "typescript": "^5.4.5"
   },
