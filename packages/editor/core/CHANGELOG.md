@@ -1,6 +1,6 @@
-# @devrun_ryan/code-editor-core
+# @devrun_ryan/editor-core
 
-## 0.0.3
+## 0.0.2
 
 ### Patch Changes
 
@@ -36,8 +36,5 @@
   - 리액트 타입 라이브러리 버전 업데이트
   - '@devrun_ryan/code-editor-core' 패키지 적용
 
-## 0.0.2
-
-### Patch Changes
-
-- [#24](https://github.com/Ryan-TheLion/editor/pull/24) [`97cc20d`](https://github.com/Ryan-TheLion/editor/commit/97cc20d4e43fcb038a9383abb8c31a96ed648deb) Thanks [@Ryan-TheLion](https://github.com/Ryan-TheLion)! - README.md 를 반영
+- Updated dependencies [[`80a50a8`](https://github.com/Ryan-TheLion/editor/commit/80a50a852b015688c626f7d6cfa6a5d2a1b57a0b)]:
+  - @devrun_ryan/code-editor-core@0.0.3
