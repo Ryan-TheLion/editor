@@ -1,0 +1,311 @@
+import { CodeMirrorEditor, CodeEditorDOM, StateFields } from '@devrun_ryan/code-editor-core'
+import { historyField } from '@devrun_ryan/code-editor-core/cm'
+import { isEqual } from 'lodash-es'
+import { Node } from 'prosemirror-model'
+import { StateField, TextSelection } from 'prosemirror-state'
+import { EditorView, NodeView, ViewMutationRecord } from 'prosemirror-view'
+
+import { Editor } from '../../../editor'
+import { NodeViewConstructorParams } from '../../../typing'
+import { getNodeAttrs } from '../../utils'
+import { CODE_BLOCK_LANGUAGES, CodeBlockAttrs } from './code-block-extension'
+
+type Cleanup = () => void
+
+type CodeBlockViewCleanup = Record<'editor' | 'cm', Cleanup | null>
+
+/*
+  [TODO]
+  - 코드 에디터 라이브러리 수정이후 추가로 구현할 예정
+    - ex. 코드 에디터 수정된 내용이 codemirror history가 아닌 prosemirror history 로 관리되도록 수정
+*/
+
+export class CodeBlockView implements NodeView {
+  dom: CodeEditorDOM
+  node: Node
+
+  editor: Editor
+  cm: CodeMirrorEditor
+
+  view: EditorView
+  getPos: NodeViewConstructorParams['getPos']
+
+  updating: boolean = false
+
+  cleanup: CodeBlockViewCleanup = {
+    editor: null,
+    cm: null,
+  }
+
+  constructor({ node, view, getPos, editor }: NodeViewConstructorParams & { editor: Editor }) {
+    this.view = view
+    this.getPos = getPos
+
+    this.node = node
+    const nodeAttributes = this.getAttrs(node)
+
+    this.editor = editor
+
+    this.cm = new CodeMirrorEditor({
+      content: this.initialContent(node),
+      editable: view.editable,
+      extensions: CodeMirrorEditor.starterKit,
+      ...(nodeAttributes.language &&
+        CODE_BLOCK_LANGUAGES.includes(nodeAttributes.language) && {
+          language: nodeAttributes.language as any,
+        }),
+    })
+
+    this.dom = this.cm.view.dom
+
+    this.cleanup.editor = editor.subscribeUpdateListener(() => {
+      if (this.cm.editable !== this.view.editable) {
+        this.cm.setEditable(this.view.editable)
+      }
+    })
+
+    this.cleanup.cm = this.cm.subscribeUpdateListener((update) => {
+      if (!this.view.editable || !this.cm.editable) return
+
+      this.cm.state = update.state
+
+      if (!this.cm.view.hasFocus) return
+      if (this.updating) return
+
+      const stateFields = this.getStateFields()
+
+      const diffStateFields = this.getDiffStateFields({
+        stateFields,
+      })
+
+      const pos = this.getPos()
+      if (typeof pos !== 'number') return
+
+      let offset = pos + 1
+
+      const { main } = update.state.selection
+      const selection = {
+        cm: {
+          main: update.state.selection.main,
+          from: offset + main.from,
+          to: offset + main.to,
+        },
+        pm: this.view.state.selection,
+      }
+
+      const tr = this.view.state.tr
+
+      if (diffStateFields) {
+        tr.setNodeAttribute(pos, 'stateFields', diffStateFields)
+      }
+
+      if (
+        update.docChanged ||
+        selection.pm.from != selection.cm.from ||
+        selection.pm.to != selection.cm.to
+      ) {
+        update.changes.iterChanges((fromA, toA, fromB, toB, text) => {
+          if (text.length)
+            tr.replaceWith(offset + fromA, offset + toA, editor.state.schema.text(text.toString()))
+          else tr.delete(offset + fromA, offset + toA)
+          offset += toB - fromB - (toA - fromA)
+        })
+
+        tr.setSelection(TextSelection.create(tr.doc, selection.cm.from, selection.cm.to))
+
+        this.view.dispatch(tr)
+
+        return
+      }
+
+      if (tr.docChanged) {
+        this.view.dispatch(tr)
+      }
+    })
+  }
+
+  update(node: Node) {
+    if (node.type.name !== this.node.type.name) return false
+
+    this.node = node
+
+    const nodeAttributes = this.getAttrs(node)
+
+    if (this.cm.language !== nodeAttributes.language) {
+      this.cm.setLanguage(nodeAttributes.language as any)
+    }
+
+    if (this.updating) return true
+
+    const text = {
+      cur: this.cm.state.doc.toString(),
+      new: node.textContent,
+    }
+
+    if (text.cur !== text.new) {
+      let start = 0
+      let curEnd = text.cur.length
+      let newEnd = text.new.length
+
+      while (start < curEnd && text.cur.charCodeAt(start) === text.new.charCodeAt(start)) {
+        ++start
+      }
+
+      while (
+        curEnd > start &&
+        newEnd > start &&
+        text.cur.charCodeAt(curEnd - 1) === text.new.charCodeAt(newEnd - 1)
+      ) {
+        curEnd--
+        newEnd--
+      }
+
+      this.updating = true
+
+      this.cm.view.dispatch({
+        changes: {
+          from: start,
+          to: curEnd,
+          insert: text.new.slice(start, newEnd),
+        },
+      })
+
+      this.updating = false
+    }
+
+    const tr = this.view.state.tr
+    const pos = this.getPos()
+
+    if (
+      typeof pos === 'number' &&
+      !isEqual(nodeAttributes.selection, this.cm.state.selection.toJSON())
+    ) {
+      tr.setNodeAttribute(pos, 'selection', this.cm.state.selection.toJSON())
+
+      this.view.dispatch(tr)
+    }
+
+    return true
+  }
+
+  setSelection(anchor: number, head: number, root: Document | ShadowRoot) {
+    if (!this.view.editable) return
+    if (!this.cm.view.hasFocus) return
+
+    this.cm.view.focus()
+    this.updating = true
+
+    this.cm.view.dispatch({ selection: { anchor, head } })
+
+    this.updating = false
+  }
+
+  selectNode() {
+    this.cm.view.focus()
+  }
+
+  ignoreMutation(mutation: ViewMutationRecord) {
+    if (!this.dom.contains(mutation.target)) return false
+
+    return true
+  }
+
+  stopEvent(event: Event) {
+    return true
+  }
+
+  destroy() {
+    this.cleanup.editor?.()
+    this.cleanup.cm?.()
+
+    this.cm.view.destroy()
+  }
+
+  // custom code block view method
+
+  getAttrs(node?: Node) {
+    const codeBlockNode = node ?? this.node
+
+    return getNodeAttrs<CodeBlockAttrs>(codeBlockNode)
+  }
+
+  getCodeText(node: Node) {
+    if (node?.content?.childCount) {
+      return node.content.child(0).textContent || ''
+    }
+
+    return ''
+  }
+
+  initialContent(node: Node) {
+    const { selection, stateFields } = this.getAttrs(node)
+
+    return {
+      doc: this.getCodeText(node),
+      selection: selection ?? { ranges: [{ anchor: 0, head: 0 }], main: 0 },
+      ...stateFields,
+    }
+  }
+
+  getStateFields(opt?: { excludeStateFields: StateField<any>[] }) {
+    const stateFields = (({
+      editorStateFields,
+      excludeStateFields,
+    }: {
+      editorStateFields: StateFields | null
+      excludeStateFields?: StateField<any>[]
+    }) => {
+      if (!editorStateFields) return null
+
+      const excludeFields = excludeStateFields?.length ? excludeStateFields : [historyField]
+      if (!excludeFields.length) return editorStateFields
+
+      return Array.from(Object.entries(editorStateFields)).reduce((fields, [key, field]) => {
+        if (excludeFields.find((excludeField) => excludeField === field)) {
+          return {
+            ...fields,
+          }
+        }
+
+        return {
+          ...fields,
+          [key]: field,
+        }
+      }, {} as StateFields)
+    })({
+      editorStateFields: this.cm.stateFields,
+      excludeStateFields: opt?.excludeStateFields,
+    })
+
+    return stateFields
+  }
+
+  getDiffStateFields({ stateFields }: { stateFields: StateFields | null }) {
+    const nodeStateFields = this.getAttrs().stateFields
+
+    if (!stateFields) {
+      return !!nodeStateFields && Object.keys(nodeStateFields).length ? nodeStateFields : null
+    }
+
+    const equal = Array.from(Object.keys(stateFields)).reduce(
+      (acc, key) => {
+        const stateField = stateFields[key]
+        const nodeStateFieldAttr = nodeStateFields[key as keyof typeof nodeStateFields]
+
+        return {
+          ...acc,
+          [key]: isEqual(stateField, nodeStateFieldAttr),
+        }
+      },
+      {} as Record<string, boolean>,
+    )
+
+    const diff = Array.from(Object.values(equal)).some((_equal) => !_equal)
+
+    if (!diff) return null
+
+    return {
+      ...stateFields,
+    }
+  }
+}

@@ -3,6 +3,7 @@ module.exports = {
   root: true,
   extends: ['@org/eslint-config/node.js'],
   env: {
+    node: true,
     browser: true,
   },
   parser: '@typescript-eslint/parser',

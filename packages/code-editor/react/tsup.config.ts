@@ -5,9 +5,10 @@ export default defineTsupConfig({
     const isDev = env?.NODE_ENV === 'development' || watch
 
     return {
-      entry: ['src/index.ts', 'src/hooks/index.ts', 'src/context/index.ts'],
+      entry: ['src/index.ts', 'src/hooks/index.ts', 'src/store/index.ts'],
       minify: !isDev,
       treeshake: true,
+      external: ['react', 'react-dom'],
     }
   },
 })

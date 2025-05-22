@@ -1,26 +1,32 @@
 # @devrun_ryan/code-editor-core
 
-Codemirror6 를 이용한 js 코드 에디터
+Codemirror6 를 이용한 코드 에디터
 
 ## 에디터 지원 언어
+
+1. 기본
 
 - `javascript`
 - `typescript`
 - `jsx`
 - `tsx`
 
+2. 커스텀
+
+- 에디터 languages를 설정하여 사용할 언어를 커스텀해서 전달할 수 있음
+
 ## 기본 사용 방법
 
 ```js
 /* 기본 (에디터 생성시 에디터 dom을 같이 전달) */
 
-new CodeEditor({
+const codeEditor = new CodeMirrorEditor({
   dom: document.getElementById('#editor'),
 })
 
 /* lazy (에디터를 먼저 생성하고, 에디터 dom을 이후에 삽입) */
 
-const codeEditor = new CodeEditor()
+const codeEditor = new CodeMirrorEditor()
 
 // ...
 
@@ -30,172 +36,179 @@ codeEditor.attachDom(editorWrapper)
 
 ## 옵션
 
-```js
-
-new CodeEditor({
-  // (Optional) EditorState
-  state,
-  // (Optional) EditorView
-  view,
-  // (Optional) Codemirror view 에 적용할 dom (HTML Element)
+```ts
+new CodeMirrorEditor({
   // 생성시 바로 적용하지 않을 경우, codeEditor.attachDom() 을 통해 dom을 주입
   dom,
   // (Optional) 에디터에 적용할 content
   // JSON 객체 또는 문자열(string)
   content,
+  // (Optional) 에디터 뷰 최대 높이
+  // string (~px, ~em, ...)
+  maxHeight,
   // (Optional) 에디터 테마
-  // light, dark 또는 Extension
-  theme = 'dark',
-  // (Optional) line wrapping 적용 유무
+  theme = {
+    light: lightTheme
+    dark: darkTheme
+  },
+  // (Optional) 에디터 테마 모드
+  // 'light' | 'dark'
+  themeMode = 'dark',
+  // (Optional) editable 설정
   // boolean
-  lineWrapping = false,
-  // (Optional) line number 적용 유무
-  // boolean
-  lineNumber = false,
-  // (Optional) active line gutter 적용 유무
-  // boolean
-  activeLineGutter = true,
+  editable = true,
+  // (Optional) 에디터 언어 목록
+  // Record<Key, LanguageSupport>
+  languages = codeMirrorEditorDefaultLanguages
   // (Optional) 에디터 언어
-  // 'javascript' , 'typescript', 'jsx', 'tsx'
+  // languages 에 전달된 언어 객체의 키 값
+  // 기본: 'javascript' , 'typescript', 'jsx', 'tsx'
   language = 'javascript',
   // (Optional) 생성 후 에디터에 focus 할 지 유무
   // boolean
   autoFocus = false,
+  // (Optional) line number 적용 유무
+  // boolean
+  lineNumber = false,
+  // (Optional) 에디터 콘텐츠에 맞게 높이를 적용할 지 유무
+  fitContent = false,
   // (Optional) 에디터에 추가로 적용할 Extensions
-  // Extension 배열
-  extraExtensions = [],
-  // (Optional) 에디터에 추가로 적용할 StateField
-  // 객체
-  // ex. extraFields: {
-  //       lineHighlight: lineHighlightField
-  //     }
-  extraFields
+  // Extension[]
+  extensions = [],
+  // (Optional) true를 반환할 경우 transaction 적용되지 않음
+  // (tr: Transaction) => void | boolean
+  disableTransaction,
+  // (Optional) 에디터 콘텐츠가 수정되었을 때 콜백함수
+  // (contentMap: { text: string; json: Record<any, any> }) => void
+  onChange,
+  // (Optional) 에디터 뷰가 destroy 되었을 때 콜백함수
+  // (view: EditorView) => void
+  onDestroy,
 })
-
 ```
 
-### serialize
+## serialize
 
 ```js
 /* text */
-const code = codeEditor.toText()
-
-//...서버로 데이터 전송
+const code = codeMirrorEditor.toText()
 
 /* json */
-const json = codeEditor.toJSON()
-
-const payload = json
-// 또는
-const payload = JSON.stringify(json)
-
-// ...서버로 데이터 전송
+const json = codeMirrorEditor.toJSON()
 ```
 
-### deserialize
+## deserialize
 
 ```js
-const content = /* 서버에서 받은 데이터(JSON 형식의 문자열이나 문자열) */
-// json형식의 문자열일 경우
-const content = JSON.parse(/* 서버에서 받은 데이터(JSON 형식의 문자열) */)
+// 문자열인 경우
+const content = 'const a = 1'
 
-const codeEditor = new CodeEditor({
+const codeEditor = new CodeMirrorEditor({
   // ...
-  content
+  content,
 })
 
-```
+// ---
 
-## theme
+// json형식의 문자열인 경우
+const content = JSON.parse(/* 서버에서 받은 데이터(toJSON()으로 생성한 JSON 형식의 문자열) */)
 
-`light` , `dark` 두 개의 내부 제공 테마가 있으며, 다른 테마를 원할 경우 테마 Extension을 구현한 뒤 생성자 매개변수에 전달
-
-```js
-// 기본 제공
-new CodeEditor({
-  //...
-  theme: 'light',
-})
-
-// theme Extension
-new CodeEditor({
-  //...
-  theme: Theme,
+const codeEditor = new CodeMirrorEditor({
+  // ...
+  content,
 })
 ```
 
 ## extension
 
-### fira code
-
-- [FiraCode](https://github.com/tonsky/FiraCode) 폰트를 적용
-
-### scrollbar
-
-- scrollbar 를 렌더링
-- scrollbar 관련 extension을 적용하지 않을 경우 scroll은 되지만 scrollbar는 보이지 않음
-
-```js
-import { scrollbar } from '@devrun_ryan/code-editor-core/extension'
-
-scrollbar({
-  // (Optional) 가로 스크롤바 렌더링 유무
-  // boolean
-  horizontal = false,
-  // (Optional) body에 overscroll-behavior를 contain으로 적용할 지 유무
-  // (https://developer.chrome.com/blog/overscroll-behavior)
-  // true로 할 경우 스크롤 시 브라우저 내장 스크롤 액션(뒤로 가기, 새로 고침...)이 발생하는 것을 방지
-  // boolean
-  preventOverflowScrollChain = true
-})
-```
-
-### highlight line
-
-- 특정 라인을 하이라이트 하고, 하이라이트 되지 않은 라인들은 희미하게 보임
-- 현재는 여러 라인이 아닌 하나의 라인에서 개별적으로 적용 가능
-- [예시 사이트](https://davidmyers.dev/blog/how-to-build-a-code-editor-with-codemirror-6-and-typescript/introduction#getting-the-most-out-of-the-codemirror-package)
-- 단축키
-  - `ctrl` + `h` / `cmd`(⌘) + `h`
-    - 라인을 hightlight / unhighlight (toggle)
-  - `ctrl` + `shift` + `h` / `cmd`(⌘) + `shift` + `h`
-    - 라인을 unhighlight
-
-```js
-/* hightlight line Extension을 적용할 경우 field를 같이 적용해주세요 */
-
-import { lineHighlight, lineHighlightFields } from '@devrun_ryan/code-editor-core/extension'
-
-const codeEditor = new CodeEditor({
-  //...
-  extraExtensions: [
-    //...
-    lineHighlight(),
-  ],
-  extraFields: {
-    //...
-    ...lineHighlightFields,
-  },
-})
-```
-
 ### prettier
 
-> ❗ highlight line 을 적용한 후 prettier 할 경우 코드는 prettier 되지만, 적용된 highlight line 서식이 초기화 될 수 있음
-
-- prettier를 적용
-- `toolbar`, `keyBinding` 중 최소 1개 옵션은 적용(`true`)해야 함
-- `ctrl` + `s` / `cmd`(⌘) + `s`
+- `formatWithPrettier` command를 통해 prettier 적용할 수 있음
+- prettier 라이브러리가 설치 되어 있어야 함(peerDependencies)
 
 ```js
-import { prettier } from '@devrun_ryan/code-editor-core/extension'
+import { formatWithPrettier } from '@devrun_ryan/code-editor-core'
 
-prettier({
-  // (Optional) prettier toolbar 렌더링
-  // boolean
-  toolbar = true,
-  // (Optional) 단축키 적용 유무
-  // boolean
-  keyBinding = true
+formatWithPrettier(config /* prettier config */)
+```
+
+### factory
+
+extension 프리셋을 적용하거나, 확장하여 에디터 extensions 를 생성할 수 있도록 도와 줌
+
+- CodeMirrorEditor.starterKit
+<!-- prettier-ignore-start -->
+
+```js
+// extesion 프리셋 전부 적용
+const codeEditor = new CodeMirrorEditor({
+  // ...
+  extensions: CodeMirrorEditor.starterKit,
 })
+```
+
+<!-- prettier-ignore-end -->
+
+- CodeMirrorEditor.extensionFactory
+
+  - combineStarterKit
+  <!-- prettier-ignore-start -->
+
+  ```js
+  const codeEditor = new CodeMirrorEditor({
+    // ...
+    extensions: CodeMirrorEditor.combineStarterKit(
+      ({
+        history,
+        scrollbar,
+        codeMirrorKeymap,
+        // ...
+      }) => {
+        return [
+          history(),
+          scrollbar(),
+          codeMirrorKeymap.of([
+            // custom key binding
+          ]),
+          // ...
+        ]
+      },
+    ),
+  })
+  ```
+
+  <!-- prettier-ignore-end -->
+
+- extendStarterKit
+
+  ```js
+  const codeEditor = new CodeMirrorEditor({
+    // ...
+    extensions: CodeMirrorEditor.extendStarterKit(
+      [
+        /* extra extensions */
+      ],
+      {
+        excludes: ['history' /* ... */], // starterKit에서 제외하고 싶은 플러그인의 키
+      },
+    ),
+  })
+  ```
+
+## method
+
+### runCommand
+
+- `@codemirror/commands` 의 command, 또는 원하는 커맨드를 실행
+- focus옵션이 true일 경우 커맨드 실행전에 view.focus() 로 focus 가 유지되게 함
+- type: `(command: Command | keyof CodeMirrorBaseCommands, { focus = true }: { focus?: boolean } = {}) => boolean`
+
+```js
+// example
+
+import { toggleLineHighlight } from '@devrun_ryan/code-editor-core'
+
+editor.runCommand('cursorDocEnd')
+
+editor.runCommand(toggleLineHighlight)
 ```

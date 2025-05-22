@@ -1,0 +1,472 @@
+@import url('prosemirror-view/style/prosemirror.css');
+@import url('prosemirror-gapcursor/style/gapcursor.css');
+
+@keyframes skeleton {
+  0% {
+    background-position: 100% 0%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 300% auto;
+  animation: skeleton 2s infinite linear;
+  border-radius: 0.5rem;
+}
+
+.ryan-editor {
+  &.ProseMirror {
+    outline: none;
+
+    line-height: 1.618;
+
+    * {
+      caret-color: #000;
+
+      // ==== [ 요소의 자식 link(anchor tag) ] ====
+      a {
+        // - 일반 link (ex. <h1>heading<a href="...">link content</a>content</h1>)
+        color: #4f99ee;
+        text-underline-offset: 0.25rem;
+      }
+
+      a.heading-anchor-link {
+        // - anchor link (ex. <h1 id="headingId">text<a href="#headingId"></a></h1>)
+        color: transparent;
+        text-decoration: none;
+        margin-left: 0.25rem;
+
+        &::after {
+          opacity: 0;
+          padding: 0 0.25rem;
+          content: '#';
+          font-weight: bold;
+          color: rgb(209, 213, 219);
+          transition: opacity 0.3s;
+        }
+      }
+    }
+
+    // ==== [ block container ] ====
+    .block-align-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+
+      &:hover {
+        cursor: default;
+      }
+
+      &:has(.tableWrapper) {
+        margin: 0;
+      }
+
+      &[data-block-align='left'] {
+        & > *:first-child {
+          max-width: 75%;
+          align-self: flex-start;
+
+          &[data-original-width] {
+            max-width: min(var(--original-width), 75%);
+          }
+        }
+      }
+
+      &[data-block-align='center'] {
+        & > *:first-child {
+          max-width: 75%;
+          align-self: center;
+
+          &[data-original-width] {
+            max-width: min(var(--original-width), 75%);
+          }
+        }
+      }
+
+      &[data-block-align='right'] {
+        & > *:first-child {
+          max-width: 75%;
+          align-self: flex-end;
+
+          &[data-original-width] {
+            max-width: min(var(--original-width), 75%);
+          }
+        }
+      }
+
+      &[data-block-align='full'] {
+        & > *:first-child {
+          width: 100%;
+          align-self: flex-start;
+        }
+
+        a {
+          img {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    // ==== [ 편집 중 상태일 경우 anchor link 보임 ] ====
+    &[contenteditable='true'] {
+      a.heading-anchor-link {
+        &::after {
+          opacity: 1;
+        }
+      }
+    }
+
+    // ==== [ cursor ] ====
+    &.ProseMirror-hideselection * {
+      caret-color: transparent;
+    }
+
+    &.ProseMirror-gapcursor::after {
+      border-color: red !important;
+    }
+
+    // ==== [ editor placeholder ] ====
+    .placeholder {
+      display: inline-flex;
+      align-items: center;
+      position: absolute;
+      left: 0;
+      top: 0;
+      max-width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 0 0.125rem;
+      word-break: break-all;
+      color: #d3d3d3;
+      pointer-events: none;
+    }
+
+    &[contenteditable='false'] .placeholder {
+      display: none;
+    }
+
+    // ==== [ code mirror ] ====
+    .cm-editor {
+      margin: 0.5rem auto;
+      max-height: 500px;
+
+      .cm-content {
+        padding-bottom: 4px;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .cm-editor {
+        max-height: 280px;
+      }
+    }
+
+    // ==== [ horizontal rule ] ====
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #aaa, transparent);
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    // ==== [ link (anchor tag) ] ====
+    a {
+      color: #4f99ee;
+      text-underline-offset: 0.25rem;
+
+      &:has(img) {
+        display: inline-flex;
+      }
+    }
+
+    &[contenteditable='true'].link-able {
+      // ==== [ ctrl-click-to-follow-link style ] ====
+      a {
+        cursor: pointer;
+      }
+    }
+
+    // ==== [ underline ] ====
+    u {
+      text-underline-offset: 4px;
+    }
+
+    // ==== [ paragraph ] ====
+    p {
+      margin: 1rem 0;
+      word-break: break-all;
+      width: 100%;
+      line-height: 1.2;
+      box-sizing: border-box;
+
+      &:has(.block-align-container) {
+        margin: 0;
+      }
+    }
+
+    // ==== [ bold ] ====
+    strong,
+    b {
+      font-weight: bold;
+    }
+
+    // ==== [ italic ] ====
+    em,
+    i {
+      font-style: italic;
+    }
+
+    // ==== [ inline code ] ====
+    code:not(pre code) {
+      color: #eb5757;
+      font-size: 0.85em;
+      background-color: #87837826;
+      display: inline-block;
+      box-sizing: border-box;
+      border-radius: 0.25rem;
+      padding: 0.2em 0.4em;
+      line-height: normal;
+    }
+
+    // ==== [heading] ====
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-weight: bold;
+      margin-top: 2.5rem;
+      margin-bottom: 1.33rem;
+
+      &:hover {
+        a.heading-anchor-link {
+          &::after {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    h1 {
+      font-size: 2.25rem;
+    }
+
+    h2 {
+      counter-reset: step;
+      font-size: 1.875rem;
+
+      & ~ h3 {
+        counter-increment: step;
+        vertical-align: top;
+
+        padding-left: 40px;
+
+        &::before {
+          position: absolute;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 33px;
+          height: 33px;
+          text-align: center;
+          text-indent: -1px;
+          color: rgba(163, 163, 163);
+          content: counter(step);
+          border-radius: 9999px;
+          border-width: 4px;
+          border-color: rgb(255, 255, 255);
+          background-color: rgb(243, 244, 246);
+          margin-top: 3px;
+          margin-left: -40px;
+          font-size: 1rem;
+          font-weight: 400;
+        }
+      }
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    h4 {
+      font-size: 1.25rem;
+    }
+
+    h5,
+    h6 {
+      font-size: 1rem;
+    }
+
+    // ==== [list] ====
+    ol {
+      list-style: decimal;
+      padding: 0 1rem;
+      margin: 1.25rem 1rem 1.25rem 0.4rem;
+    }
+
+    ul {
+      list-style: disc;
+      padding: 0 1rem;
+      margin: 1.25rem 1rem 1.25rem 0.4rem;
+
+      ul {
+        // - depth: 2
+        list-style: circle;
+      }
+
+      ul ul {
+        // - depth: 3
+        list-style: square;
+      }
+    }
+
+    // ==== [ blockquote ] ====
+    blockquote {
+      border-left: 6px solid #e5e7eb;
+      margin: 1.5rem 0;
+      padding: 0.5rem 1rem;
+      background: #f9fafb;
+      color: #636c76;
+    }
+
+    // ==== [ table ] ====
+    .tableWrapper {
+      width: 100%;
+      max-width: 100%;
+      margin: 1.5rem 0;
+      box-sizing: border-box;
+      overflow-x: auto;
+      position: relative;
+      cursor: auto !important;
+    }
+
+    &[contenteditable='false'] .tableWrapper {
+      max-width: 100%;
+    }
+
+    table {
+      // 인라인 처럼 요소 크기만큼만 적용하고 싶은 경우
+      // - table-layout: fixed;
+      // + width: max-content;
+      width: 100%;
+      margin: 0 0 1rem;
+      border-collapse: collapse;
+      overflow: hidden;
+      table-layout: fixed;
+
+      th,
+      td {
+        border: 1px solid #e5e7eb;
+        padding: 0.375rem 0.5rem;
+        vertical-align: top;
+        position: relative;
+        box-sizing: border-box;
+        word-break: break-all;
+        min-width: 50px;
+      }
+
+      td:not(th ~ td) {
+        background-color: #fff;
+      }
+
+      th {
+        background: #f9fafb;
+        font-weight: bold;
+        text-align: left;
+      }
+
+      &:has(.column-resize-handle) {
+        cursor: col-resize;
+
+        th,
+        td {
+          pointer-events: none;
+        }
+      }
+
+      .selectedCell {
+        &::after {
+          z-index: 2;
+          pointer-events: none;
+          background: #3d251414;
+          content: '';
+          inset: 0;
+          position: absolute;
+        }
+      }
+
+      .column-resize-handle {
+        background-color: #00aeef;
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 20;
+        width: 4px;
+        height: calc(100% + 2px);
+      }
+    }
+
+    .tableWrapper table {
+      margin: 0;
+    }
+
+    // ==== [ image ] ====
+    img {
+      max-width: 100%;
+      cursor: pointer !important;
+
+      &.image-error {
+        object-fit: scale-down;
+      }
+    }
+
+    // === [ figure, figcaption ] ===
+    figure {
+      margin: 0.5rem 0;
+    }
+
+    figcaption {
+      text-align: center;
+      color: #cdcdcd;
+      font-size: 0.875rem;
+      margin: 0.5rem;
+      word-break: break-all;
+      white-space: pre-line;
+
+      cursor: auto;
+
+      img.ProseMirror-separator {
+        display: none !important;
+
+        & + br.ProseMirror-trailingBreak {
+          display: none !important;
+        }
+      }
+
+      .caption-placeholder {
+        display: inline-flex;
+        font-weight: bold;
+        pointer-events: none;
+      }
+    }
+
+    // 편집 상태가 아니고, figcaption 텍스트가 없는 경우
+    &[contenteditable='false'] figcaption:has(br.ProseMirror-trailingBreak:first-child) {
+      height: 0;
+      margin: 0;
+    }
+  }
+}

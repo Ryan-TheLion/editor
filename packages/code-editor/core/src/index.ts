@@ -1,1 +1,2 @@
-export * from './code-mirror'
+export * from './code-editor'
+export * from './typing'

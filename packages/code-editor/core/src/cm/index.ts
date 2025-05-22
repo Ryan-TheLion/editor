@@ -1,0 +1,7 @@
+export { basicSetup, minimalSetup } from 'codemirror'
+export * from '@codemirror/view'
+export * from '@codemirror/state'
+export * from '@codemirror/commands'
+export * from '@codemirror/language'
+export * from '@lezer/common'
+export * from '@lezer/highlight'
