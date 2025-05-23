@@ -52,7 +52,7 @@
     "node": ">=18"
   },
   "publishConfig": {
-    "access": "restricted",
+    "access": "public",
     "directory": "../lib/react",
     "linkDirectory": false
   }
