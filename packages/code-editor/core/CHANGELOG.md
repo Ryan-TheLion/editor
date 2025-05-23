@@ -1,5 +1,11 @@
 # @devrun_ryan/code-editor-core
 
+## 0.0.4
+
+### Patch Changes
+
+- [#31](https://github.com/Ryan-TheLion/editor/pull/31) [`2a922fa`](https://github.com/Ryan-TheLion/editor/commit/2a922fad1152587810d9ffecadd9e19fc7ca193f) Thanks [@Ryan-TheLion](https://github.com/Ryan-TheLion)! - npm 저장소 배포 방식 수정(private => public)
+
 ## 0.0.3
 
 ### Patch Changes
