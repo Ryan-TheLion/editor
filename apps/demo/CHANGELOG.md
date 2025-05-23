@@ -1,5 +1,17 @@
 # demo
 
+## 0.1.2
+
+### Patch Changes
+
+- 리액트 타입 라이브러리 버전 업데이트
+- '@devrun_ryan/code-editor-core' 패키지 적용
+
+- Updated dependencies [[`80a50a8`](https://github.com/Ryan-TheLion/editor/commit/80a50a852b015688c626f7d6cfa6a5d2a1b57a0b)]:
+  - @devrun_ryan/code-editor-react@0.0.3
+  - @devrun_ryan/code-editor-core@0.0.3
+  - @devrun_ryan/editor-core@0.0.2
+
 ## 0.1.1
 
 ### Patch Changes

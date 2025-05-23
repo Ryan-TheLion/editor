@@ -1,5 +1,22 @@
 # @devrun_ryan/code-editor-react
 
+## 0.0.3
+
+### Patch Changes
+
+- [#28](https://github.com/Ryan-TheLion/editor/pull/28) [`80a50a8`](https://github.com/Ryan-TheLion/editor/commit/80a50a852b015688c626f7d6cfa6a5d2a1b57a0b) Thanks [@Ryan-TheLion](https://github.com/Ryan-TheLion)!
+
+- CodeEditor => CodeMirror (코어 컴포넌트 이름 수정)
+- jotai, jotai scope, jotai-optics 라이브러리를 이용하여 에디터 상태 관리
+- 리액트 타입 라이브러리 버전 업데이트
+- 비동기로 콘텐츠,언어를 설정할 수 있는 fetchPayload 프롭 추가
+- 폴더 구조 수정
+- (tsup) entry 옵션 수정, external 옵션 설정(react, react-dom)
+- README.md 수정
+
+- Updated dependencies [[`80a50a8`](https://github.com/Ryan-TheLion/editor/commit/80a50a852b015688c626f7d6cfa6a5d2a1b57a0b)]:
+  - @devrun_ryan/code-editor-core@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes

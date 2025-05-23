@@ -1,5 +1,22 @@
 # @devrun_ryan/code-editor-core
 
+## 0.0.3
+
+### Patch Changes
+
+- [#28](https://github.com/Ryan-TheLion/editor/pull/28) [`80a50a8`](https://github.com/Ryan-TheLion/editor/commit/80a50a852b015688c626f7d6cfa6a5d2a1b57a0b) Thanks [@Ryan-TheLion](https://github.com/Ryan-TheLion)!
+
+- CodeEditor => CodeMirrorEditor (코어 클래스 이름 수정)
+- CodeMIrrorViewer 코어 클래스 추가
+- starterKit 을 적용하거나 수정하여 익스텐션을 적용할 수 있도록 기능 추가
+- clipboard 복사 메소드 추가(copy)
+- 브라켓 페어 extension, 주석 extension, 폰트 extension 추가
+- 에디터 설정을 업데이트 할 수 있는 updateProps 메소드 추가
+- css변수로 theme을 관리할 수 있도록 수정
+- 폴더 구조 수정
+- (tsup) entry 옵션 수정
+- README.md 수정
+
 ## 0.0.2
 
 ### Patch Changes
