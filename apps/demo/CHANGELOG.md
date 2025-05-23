@@ -1,5 +1,14 @@
 # demo
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`2a922fa`](https://github.com/Ryan-TheLion/editor/commit/2a922fad1152587810d9ffecadd9e19fc7ca193f)]:
+  - @devrun_ryan/code-editor-react@0.0.4
+  - @devrun_ryan/code-editor-core@0.0.4
+  - @devrun_ryan/editor-core@0.0.3
+
 ## 0.1.2
 
 ### Patch Changes
