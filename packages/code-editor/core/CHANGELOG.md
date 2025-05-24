@@ -1,5 +1,11 @@
 # @devrun_ryan/code-editor-core
 
+## 0.0.5
+
+### Patch Changes
+
+- [#34](https://github.com/Ryan-TheLion/editor/pull/34) [`01f1613`](https://github.com/Ryan-TheLion/editor/commit/01f1613e920047523b31603f2d73c832d73235f3) Thanks [@Ryan-TheLion](https://github.com/Ryan-TheLion)! - prettier 익스텐션 제거, events 폴리필 적용
+
 ## 0.0.4
 
 ### Patch Changes

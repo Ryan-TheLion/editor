@@ -1,5 +1,12 @@
 # @devrun_ryan/editor-core
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`01f1613`](https://github.com/Ryan-TheLion/editor/commit/01f1613e920047523b31603f2d73c832d73235f3)]:
+  - @devrun_ryan/code-editor-core@0.0.5
+
 ## 0.0.3
 
 ### Patch Changes
