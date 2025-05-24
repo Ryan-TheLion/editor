@@ -50,26 +50,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Send Mail
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: editor repo github action 결과
-          to: ${{ secrets.MAIL_TO }}
-          from: RyanEditorRepo
-          convert_markdown: true
-          html_body: |
-            ## workflow: ${{ github.workflow }} Result
-
-            [action](${{ format('https://github.com/Ryan-TheLion/editor/actions/runs/{0}', github.run_id) }})
-
-            - job result : ${{ job.status }}
-            - PR Number : ${{ steps.changesets.outputs.pullRequestNumber != '' && format('[#{0}](https://github.com/Ryan-TheLion/editor/pull/{0})', steps.changesets.outputs.pullRequestNumber) || '없음' }}
-            - hasChangesets : ${{ steps.changesets.outputs.hasChangesets }}
-            - published : ${{ steps.changesets.outputs.published }}
-            - publishedPackages : ${{ toJson(steps.changesets.outputs.publishedPackages) }}
