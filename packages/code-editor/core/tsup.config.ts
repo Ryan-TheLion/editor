@@ -1,4 +1,5 @@
 import { defineTsupConfig } from '@org/tsup-config'
+import { nodeModulesPolyfillPlugin } from 'esbuild-plugins-node-modules-polyfill'
 
 export default defineTsupConfig({
   overrideConfig({ watch, env }) {
@@ -9,6 +10,7 @@ export default defineTsupConfig({
       minify: !isDev,
       treeshake: true,
       external: ['prettier'],
+      esbuildPlugins: [nodeModulesPolyfillPlugin({ modules: ['events'] })],
     }
   },
 })
