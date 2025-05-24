@@ -46,14 +46,6 @@
     "@types/node": "^20",
     "tsup": "^8.2.4"
   },
-  "peerDependencies": {
-    "prettier": "^3.5.3"
-  },
-  "peerDependenciesMeta": {
-    "prettier": {
-      "optional": true
-    }
-  },
   "engines": {
     "node": ">=18"
   },
