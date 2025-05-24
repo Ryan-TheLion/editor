@@ -17,7 +17,6 @@ import {
 } from '@codemirror/view'
 
 import { isEqual } from '../../../../utils'
-import { prettierChangesAnnotation } from '../extension-prettier'
 import { lineHighlightKeymap } from './commands'
 import { HIGHLIGHT_GUTTER_LINE_CLASS, HIGHLIGHT_LINE_CLASS, lineHighlightTheme } from './theme'
 
@@ -172,40 +171,6 @@ const invertedHighlight = invertedEffects.of((tr) => {
 })
 
 const updateEffects = EditorState.transactionExtender.of((tr) => {
-  const prettierChanges = tr.annotation(prettierChangesAnnotation)
-
-  if (prettierChanges) {
-    const { changesMap } = prettierChanges
-
-    const prevLineHighlight = stateFieldRangeSetMap({
-      tr,
-      stateType: 'startState',
-      field: lineHighlightField,
-    })
-
-    const decorationTargetLineNumbers = new Set<number>()
-
-    prevLineHighlight.forEach((highlight) => {
-      changesMap
-        .get(highlight.line.number)
-        ?.forEach((line) => decorationTargetLineNumbers.add(line.number))
-    })
-
-    const shouldApplyLines = Array.from(decorationTargetLineNumbers.values()).map((lineNumber) =>
-      tr.state.doc.line(lineNumber),
-    )
-
-    const add = shouldApplyLines.map((line) => addLineHighlight.of({ from: line.from }))
-    const remove = prevLineHighlight.map((highlight) =>
-      removeLineHighlight.of({ from: highlight.from }),
-    )
-
-    return {
-      effects: [...remove, ...add],
-      annotations: prettierChangesAnnotation.of(prettierChanges),
-    }
-  }
-
   const userEvent = tr.annotation(Transaction.userEvent)
 
   if (userEvent?.startsWith('delete')) {
